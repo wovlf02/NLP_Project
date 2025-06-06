@@ -1,135 +1,72 @@
 package com.nlp.back.service.community.block;
 
-import com.nlp.back.dto.community.block.response.BlockedCommentListResponse;
-import com.nlp.back.dto.community.block.response.BlockedPostListResponse;
-import com.nlp.back.dto.community.block.response.BlockedReplyListResponse;
-import com.nlp.back.dto.community.block.response.BlockedTargetResponse;
+import com.nlp.back.dto.community.block.request.BlockTargetRequest;
+import com.nlp.back.dto.community.block.request.UnblockTargetRequest;
+import com.nlp.back.dto.community.block.response.BlockedUserListResponse;
 import com.nlp.back.entity.auth.User;
 import com.nlp.back.entity.community.Block;
-import com.nlp.back.entity.community.Comment;
-import com.nlp.back.entity.community.Post;
-import com.nlp.back.entity.community.Reply;
 import com.nlp.back.global.exception.CustomException;
 import com.nlp.back.global.exception.ErrorCode;
-import com.nlp.back.global.security.SecurityUtil;
 import com.nlp.back.repository.auth.UserRepository;
 import com.nlp.back.repository.community.block.BlockRepository;
-import com.nlp.back.repository.community.comment.CommentRepository;
-import com.nlp.back.repository.community.comment.ReplyRepository;
-import com.nlp.back.repository.community.post.PostRepository;
+import com.nlp.back.util.SessionUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class BlockService {
 
     private final BlockRepository blockRepository;
-    private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
-    private final ReplyRepository replyRepository;
     private final UserRepository userRepository;
-    private final SecurityUtil securityUtil; // ✅ 추가
 
-    // ================== 게시글 ==================
-    public void blockPost(Long postId) {
-        User user = securityUtil.getCurrentUser(); // ✅ 변경
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-
-        Block block = blockRepository.findByUserAndPost(user, post)
-                .orElse(Block.builder().user(user).post(post).build());
-
-        block.restore();
-        blockRepository.save(block);
+    /**
+     * 👤 사용자 차단
+     */
+    public void blockUser(BlockTargetRequest request, HttpServletRequest httpRequest) {
+        User user = getSessionUser(httpRequest);
+        User target = getUser(request.getTargetId());
+        if (blockRepository.findByUserAndBlockedUser(user, target).isEmpty()) {
+            Block block = Block.builder().user(user).blockedUser(target).build();
+            blockRepository.save(block);
+        }
     }
 
-    public void unblockPost(Long postId) {
-        User user = securityUtil.getCurrentUser(); // ✅ 변경
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-
-        blockRepository.findByUserAndPost(user, post)
-                .ifPresent(block -> {
-                    block.softDelete();
-                    blockRepository.save(block);
-                });
+    /**
+     * 🔓 사용자 차단 해제
+     */
+    public void unblockUser(UnblockTargetRequest request, HttpServletRequest httpRequest) {
+        User user = getSessionUser(httpRequest);
+        User target = getUser(request.getTargetId());
+        blockRepository.findByUserAndBlockedUser(user, target)
+                .ifPresent(blockRepository::delete);
     }
 
-    public BlockedPostListResponse getBlockedPosts() {
-        User user = securityUtil.getCurrentUser(); // ✅ 변경
-        List<Block> blocks = blockRepository.findByUserAndPostIsNotNullAndIsDeletedFalse(user);
-        return new BlockedPostListResponse(blocks.stream()
-                .map(block -> new BlockedTargetResponse(block.getPost().getId(), "POST"))
-                .collect(Collectors.toList()));
+    /**
+     * 📋 차단한 사용자 목록 조회
+     */
+    public BlockedUserListResponse getBlockedUsers(HttpServletRequest httpRequest) {
+        User user = getSessionUser(httpRequest);
+        List<Block> blocks = blockRepository.findByUserAndBlockedUserIsNotNull(user);
+        return new BlockedUserListResponse(
+                blocks.stream()
+                        .map(b -> BlockedUserListResponse.BlockedUserDto.from(b.getBlockedUser()))
+                        .toList()
+        );
     }
 
-    // ================== 댓글 ==================
-    public void blockComment(Long commentId) {
-        User user = securityUtil.getCurrentUser(); // ✅ 변경
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+    // ===== 내부 유틸 =====
 
-        Block block = blockRepository.findByUserAndComment(user, comment)
-                .orElse(Block.builder().user(user).comment(comment).build());
-
-        block.restore();
-        blockRepository.save(block);
+    private User getSessionUser(HttpServletRequest request) {
+        Long userId = SessionUtil.getUserId(request);
+        return getUser(userId);
     }
 
-    public void unblockComment(Long commentId) {
-        User user = securityUtil.getCurrentUser(); // ✅ 변경
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-
-        blockRepository.findByUserAndComment(user, comment)
-                .ifPresent(block -> {
-                    block.softDelete();
-                    blockRepository.save(block);
-                });
-    }
-
-    public BlockedCommentListResponse getBlockedComments() {
-        User user = securityUtil.getCurrentUser(); // ✅ 변경
-        List<Block> blocks = blockRepository.findByUserAndCommentIsNotNullAndIsDeletedFalse(user);
-        return new BlockedCommentListResponse(blocks.stream()
-                .map(block -> new BlockedTargetResponse(block.getComment().getId(), "COMMENT"))
-                .collect(Collectors.toList()));
-    }
-
-    // ================== 대댓글 ==================
-    public void blockReply(Long replyId) {
-        User user = securityUtil.getCurrentUser(); // ✅ 변경
-        Reply reply = replyRepository.findById(replyId)
-                .orElseThrow(() -> new CustomException(ErrorCode.REPLY_NOT_FOUND));
-
-        Block block = blockRepository.findByUserAndReply(user, reply)
-                .orElse(Block.builder().user(user).reply(reply).build());
-
-        block.restore();
-        blockRepository.save(block);
-    }
-
-    public void unblockReply(Long replyId) {
-        User user = securityUtil.getCurrentUser(); // ✅ 변경
-        Reply reply = replyRepository.findById(replyId)
-                .orElseThrow(() -> new CustomException(ErrorCode.REPLY_NOT_FOUND));
-
-        blockRepository.findByUserAndReply(user, reply)
-                .ifPresent(block -> {
-                    block.softDelete();
-                    blockRepository.save(block);
-                });
-    }
-
-    public BlockedReplyListResponse getBlockedReplies() {
-        User user = securityUtil.getCurrentUser(); // ✅ 변경
-        List<Block> blocks = blockRepository.findByUserAndReplyIsNotNullAndIsDeletedFalse(user);
-        return new BlockedReplyListResponse(blocks.stream()
-                .map(block -> new BlockedTargetResponse(block.getReply().getId(), "REPLY"))
-                .collect(Collectors.toList()));
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 }

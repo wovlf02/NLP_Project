@@ -1,32 +1,34 @@
 package com.nlp.back.dto.community.post.request;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 /**
  * 게시글 수정 요청 DTO
- * <p>
- * 기존 게시글의 제목, 내용, 카테고리를 수정할 때 사용됩니다.
- * </p>
  */
-@Data
+@Getter
+@NoArgsConstructor
 public class PostUpdateRequest {
 
-    /**
-     * 수정할 제목
-     */
+    @NotNull(message = "게시글 ID(postId)는 필수입니다.")
+    private Long postId;
+
+    @NotBlank(message = "제목은 필수입니다.")
     private String title;
 
-    /**
-     * 수정할 본문
-     */
+    @NotBlank(message = "본문 내용은 필수입니다.")
     private String content;
-//
-//    /**
-//     * 수정할 카테고리
-//     */
-//    private String category;
 
-    private List<Long> deleteFileIds;
+    @NotBlank(message = "카테고리는 필수입니다.")
+    private String category;
+
+    private String tag;
+
+    private List<MultipartFile> files;        // 새로 추가할 첨부파일들
+    private List<Long> deleteFileIds;         // 기존에서 삭제할 첨부파일 ID 목록
 }

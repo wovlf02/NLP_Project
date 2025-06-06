@@ -2,12 +2,13 @@ package com.nlp.back;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.nlp.back")
 public class BackApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(BackApplication.class, args);
-        System.out.println("🚀 StudyMate 백엔드 서버가 실행되었습니다! 🚀");
+        ApplicationContext ctx = SpringApplication.run(BackApplication.class, args);
+        System.out.println("🚀 NLP 백엔드 서버가 실행되었습니다! 🚀");
     }
 }

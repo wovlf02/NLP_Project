@@ -1,5 +1,8 @@
 package com.nlp.back.controller.file;
 
+import com.nlp.back.dto.common.MessageResponse;
+import com.nlp.back.util.SessionUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -7,41 +10,56 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.UUID;
 
-/**
- * 로컬 파일 업로드 컨트롤러
- * - S3 없이 로컬 서버 디렉토리에 파일 저장
- * - 이미지, 파일 등 첨부 시 저장된 파일명을 반환함
- */
 @RestController
 @RequestMapping("/api/files")
 @RequiredArgsConstructor
 public class FileUploadController {
 
-    private static final String UPLOAD_DIR = "C:/upload"; // ✅ 로컬에 직접 생성해둘 것
+    private static final String BASE_UPLOAD_DIR = "C:/upload";
 
     /**
-     * 로컬 파일 업로드
-     *
-     * @param file Multipart 파일
-     * @return 저장된 파일명
+     * ✅ 파일 업로드 (세션 기반, 단일 파일)
      */
-    @PostMapping("/upload")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
+    @PostMapping(value = "/upload", consumes = "multipart/form-data")
+    public ResponseEntity<MessageResponse> uploadFile(
+            @RequestParam("file") MultipartFile file,
+            HttpServletRequest httpRequest
+    ) {
         try {
-            File dir = new File(UPLOAD_DIR);
-            if (!dir.exists()) dir.mkdirs();
+            Long userId = SessionUtil.getUserId(httpRequest);
 
-            String originalFilename = file.getOriginalFilename();
-            String storedFilename = UUID.randomUUID() + "_" + originalFilename;
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.badRequest().body(MessageResponse.of("❌ 업로드할 파일이 없습니다."));
+            }
 
-            File dest = new File(UPLOAD_DIR, storedFilename);
+            String originalFilename = Objects.requireNonNull(file.getOriginalFilename(), "파일명이 존재하지 않습니다.");
+            if (originalFilename.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(MessageResponse.of("❌ 파일명이 유효하지 않습니다."));
+            }
+
+            String storedFilename = UUID.randomUUID().toString() + "_" + originalFilename;
+
+            File userDir = new File(BASE_UPLOAD_DIR, String.valueOf(userId));
+            if (!userDir.exists() && !userDir.mkdirs()) {
+                return ResponseEntity.internalServerError()
+                        .body(MessageResponse.of("❌ 업로드 경로 생성에 실패했습니다."));
+            }
+
+            File dest = new File(userDir, storedFilename);
             file.transferTo(dest);
 
-            return ResponseEntity.ok(storedFilename); // 채팅 전송 시 사용됨
+            String relativePath = "/upload/" + userId + "/" + storedFilename;
+            return ResponseEntity.ok(MessageResponse.of("✅ 파일이 업로드되었습니다.", relativePath));
+
         } catch (IOException e) {
-            return ResponseEntity.internalServerError().body("파일 업로드 실패: " + e.getMessage());
+            return ResponseEntity.internalServerError()
+                    .body(MessageResponse.of("❌ 파일 저장 중 오류 발생: " + e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(MessageResponse.of("❌ 알 수 없는 오류로 업로드에 실패했습니다."));
         }
     }
 }

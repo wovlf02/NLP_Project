@@ -1,75 +1,67 @@
 package com.nlp.back.controller.community.block;
 
-import com.nlp.back.dto.community.block.response.BlockedPostListResponse;
-import com.nlp.back.dto.community.block.response.BlockedCommentListResponse;
-import com.nlp.back.dto.community.block.response.BlockedReplyListResponse;
 import com.nlp.back.dto.common.MessageResponse;
+import com.nlp.back.dto.community.block.request.BlockTargetRequest;
+import com.nlp.back.dto.community.block.request.UnblockTargetRequest;
+import com.nlp.back.dto.community.block.response.BlockedUserListResponse;
 import com.nlp.back.service.community.block.BlockService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 사용자 차단 및 해제 기능 컨트롤러
+ * FriendsPage.js와 연동되는 API
+ */
 @RestController
-@RequestMapping("/api/community")
+@RequestMapping("/api/blocks/users")
 @RequiredArgsConstructor
 public class BlockController {
 
     private final BlockService blockService;
 
-    // ===== 게시글 =====
-
-    @PostMapping("/posts/{postId}/block")
-    public ResponseEntity<MessageResponse> blockPost(@PathVariable Long postId) {
-        blockService.blockPost(postId);
-        return ResponseEntity.ok(new MessageResponse("해당 게시글을 차단했습니다."));
+    /**
+     * 👤 사용자 차단
+     * POST /api/blocks/users
+     */
+    @PostMapping
+    public ResponseEntity<MessageResponse> blockUser(
+            @RequestBody BlockTargetRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        blockService.blockUser(request, httpRequest);
+        return ok("🚫 사용자를 차단했습니다.");
     }
 
-    @DeleteMapping("/posts/{postId}/block")
-    public ResponseEntity<MessageResponse> unblockPost(@PathVariable Long postId) {
-        blockService.unblockPost(postId);
-        return ResponseEntity.ok(new MessageResponse("해당 게시글의 차단이 해제되었습니다."));
+    /**
+     * 🔓 사용자 차단 해제
+     * DELETE /api/blocks/users
+     */
+    @DeleteMapping
+    public ResponseEntity<MessageResponse> unblockUser(
+            @RequestBody UnblockTargetRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        blockService.unblockUser(request, httpRequest);
+        return ok("🔓 사용자 차단을 해제했습니다.");
     }
 
-    @GetMapping("/posts/blocked")
-    public ResponseEntity<BlockedPostListResponse> getBlockedPosts() {
-        return ResponseEntity.ok(blockService.getBlockedPosts());
+    /**
+     * 📋 차단한 사용자 목록 조회
+     * GET /api/blocks/users
+     */
+    @GetMapping
+    public ResponseEntity<BlockedUserListResponse> getBlockedUsers(
+            HttpServletRequest httpRequest
+    ) {
+        return ResponseEntity.ok(blockService.getBlockedUsers(httpRequest));
     }
 
-    // ===== 댓글 =====
-
-    @PostMapping("/comments/{commentId}/block")
-    public ResponseEntity<MessageResponse> blockComment(@PathVariable Long commentId) {
-        blockService.blockComment(commentId);
-        return ResponseEntity.ok(new MessageResponse("해당 댓글을 차단했습니다."));
-    }
-
-    @DeleteMapping("/comments/{commentId}/block")
-    public ResponseEntity<MessageResponse> unblockComment(@PathVariable Long commentId) {
-        blockService.unblockComment(commentId);
-        return ResponseEntity.ok(new MessageResponse("해당 댓글의 차단이 해제되었습니다."));
-    }
-
-    @GetMapping("/comments/blocked")
-    public ResponseEntity<BlockedCommentListResponse> getBlockedComments() {
-        return ResponseEntity.ok(blockService.getBlockedComments());
-    }
-
-    // ===== 대댓글 =====
-
-    @PostMapping("/replies/{replyId}/block")
-    public ResponseEntity<MessageResponse> blockReply(@PathVariable Long replyId) {
-        blockService.blockReply(replyId);
-        return ResponseEntity.ok(new MessageResponse("해당 대댓글을 차단했습니다."));
-    }
-
-    @DeleteMapping("/replies/{replyId}/block")
-    public ResponseEntity<MessageResponse> unblockReply(@PathVariable Long replyId) {
-        blockService.unblockReply(replyId);
-        return ResponseEntity.ok(new MessageResponse("해당 대댓글의 차단이 해제되었습니다."));
-    }
-
-    @GetMapping("/replies/blocked")
-    public ResponseEntity<BlockedReplyListResponse> getBlockedReplies() {
-        return ResponseEntity.ok(blockService.getBlockedReplies());
+    /**
+     * ✅ 공통 메시지 응답 포맷
+     */
+    private ResponseEntity<MessageResponse> ok(String msg) {
+        return ResponseEntity.ok(MessageResponse.of(msg));
     }
 }

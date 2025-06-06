@@ -1,47 +1,41 @@
 package com.nlp.back.config.web;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
-import java.nio.file.Paths;
-
+/**
+ * Web 관련 설정 (정적 자원 + CORS 정책)
+ */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    private static final String LOCAL_UPLOAD_DIR = "C:/NLP_Project/uploads"; // 파일 업로드 경로
+    private static final String FILE_UPLOAD_DIR = "file:///C:/FinalProject/uploads/";
 
-    /**
-     * 정적 자원 핸들러 설정
-     * 예: http://localhost:8080/static/파일명 으로 접근
-     */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String uploadPath = Paths.get("C:/NLP_Project/uploads/").toUri().toString();
-
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations(uploadPath)
-                .setCachePeriod(3600) // optional
+                .addResourceLocations(FILE_UPLOAD_DIR)
+                .setCachePeriod(3600)
                 .resourceChain(true)
                 .addResolver(new PathResourceResolver());
     }
 
-
-    /**
-     * CORS 설정 (React Native, Web 요청 허용)
-     */
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:3000", "http://192.168.35.52:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-            }
-        };
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins(
+                        "http://localhost:3000"
+                )
+                .allowedMethods("*")
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
+
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.setUseTrailingSlashMatch(true);
+    }
+
+
 }

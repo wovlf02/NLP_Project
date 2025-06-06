@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 게시글 댓글 엔티티 (MySQL 기반)
+ * 게시글 댓글 엔티티 (하드 삭제 방식)
  */
 @Entity
-@Table(name = "comments", // ✅ 소문자 테이블명
+@Table(name = "comments",
         indexes = {
                 @Index(name = "idx_comment_post", columnList = "post_id"),
                 @Index(name = "idx_comment_writer", columnList = "writer_id")
@@ -26,11 +26,11 @@ import java.util.List;
 public class Comment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // ✅ MySQL 기본 키 전략
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /** 댓글 내용 */
-    @Column(name = "content", nullable = false, length = 1000)
+    @Column(nullable = false, length = 1000)
     private String content;
 
     /** 댓글 작성자 */
@@ -38,16 +38,16 @@ public class Comment {
     @JoinColumn(name = "writer_id", nullable = false)
     private User writer;
 
-    /** 게시글 */
+    /** 소속된 게시글 */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    /** 생성일 */
+    /** 생성일시 */
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    /** 수정일 */
+    /** 수정일시 */
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -66,14 +66,7 @@ public class Comment {
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reply> replies = new ArrayList<>();
 
-    /** 삭제 여부 (소프트 삭제) */
-    @Builder.Default
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
-
-    /** 삭제 시각 */
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    // ===== 생명주기 =====
 
     @PrePersist
     protected void onCreate() {
@@ -100,14 +93,5 @@ public class Comment {
         if (this.likeCount > 0) {
             this.likeCount--;
         }
-    }
-
-    public void softDelete() {
-        this.isDeleted = true;
-        this.deletedAt = LocalDateTime.now();
-    }
-
-    public boolean isActive() {
-        return !isDeleted;
     }
 }

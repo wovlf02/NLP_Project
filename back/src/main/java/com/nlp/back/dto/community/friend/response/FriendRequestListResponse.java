@@ -1,27 +1,22 @@
 package com.nlp.back.dto.community.friend.response;
 
+import com.nlp.back.entity.friend.FriendRequest;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.nlp.back.entity.friend.FriendRequest;
-
-/**
- * 받은 친구 요청 목록 응답 DTO
- * <p>
- * 아직 수락 또는 거절하지 않은 친구 요청들을 반환합니다.
- * </p>
- */
-@Data
+@Getter
 @AllArgsConstructor
 public class FriendRequestListResponse {
 
     private List<FriendRequestDto> requests;
 
-    @Data
+    @Getter
     @AllArgsConstructor
+    @Builder
     public static class FriendRequestDto {
         private Long requestId;
         private Long senderId;
@@ -30,14 +25,13 @@ public class FriendRequestListResponse {
         private LocalDateTime sentAt;
 
         public static FriendRequestDto from(FriendRequest fr) {
-            return new FriendRequestDto(
-                    fr.getId(),
-                    fr.getSender().getId(),
-                    fr.getSender().getNickname(),
-                    fr.getSender().getProfileImageUrl(),
-                    fr.getRequestedAt()
-            );
+            return FriendRequestDto.builder()
+                    .requestId(fr.getId())
+                    .senderId(fr.getSender().getId())
+                    .senderNickname(fr.getSender().getNickname())
+                    .profileImageUrl(fr.getSender().getProfileImageUrl())
+                    .sentAt(fr.getRequestedAt())
+                    .build();
         }
     }
-
 }

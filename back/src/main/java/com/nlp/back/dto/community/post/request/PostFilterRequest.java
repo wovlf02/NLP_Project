@@ -1,33 +1,29 @@
 package com.nlp.back.dto.community.post.request;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
- * 게시글 조건별 필터링 요청 DTO
- * <p>
- * 키워드, 카테고리, 정렬 기준, 좋아요 최소 수 등을 포함합니다.
- * </p>
+ * 게시글 필터링 요청 DTO
  */
-@Data
+@Getter
+@NoArgsConstructor
 public class PostFilterRequest {
 
-    /**
-     * 카테고리 이름 (optional)
-     */
-    private String category;
+    private String category;   // 예: "스터디", "정보공유", null은 전체
+    private String sort;       // 예: "recent", "likes"
+    private int minLikes;      // 기본값 0
+    private String keyword;    // 포함 검색
 
-    /**
-     * 정렬 기준 (recent, popular 등)
-     */
-    private String sort;
+    public String getSortOrDefault() {
+        return (sort == null || sort.isBlank()) ? "recent" : sort;
+    }
 
-    /**
-     * 최소 좋아요 수 (기본값 0)
-     */
-    private int minLikes;
+    public int getMinLikesOrDefault() {
+        return Math.max(minLikes, 0);
+    }
 
-    /**
-     * 키워드 검색어
-     */
-    private String keyword;
+    public boolean hasCategory() {
+        return category != null && !category.isBlank();
+    }
 }

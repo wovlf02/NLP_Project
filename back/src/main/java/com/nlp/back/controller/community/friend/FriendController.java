@@ -1,21 +1,15 @@
 package com.nlp.back.controller.community.friend;
 
 import com.nlp.back.dto.common.MessageResponse;
-import com.nlp.back.dto.community.friend.request.FriendAcceptRequest;
-import com.nlp.back.dto.community.friend.request.FriendRejectRequest;
-import com.nlp.back.dto.community.friend.request.FriendRequestSendRequest;
-import com.nlp.back.dto.community.friend.response.FriendListResponse;
-import com.nlp.back.dto.community.friend.response.FriendRequestListResponse;
-import com.nlp.back.dto.community.friend.response.FriendSearchResponse;
-import com.nlp.back.dto.community.friend.response.BlockedFriendListResponse;
+import com.nlp.back.dto.community.friend.request.*;
+import com.nlp.back.dto.community.friend.response.*;
 import com.nlp.back.service.community.friend.FriendService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * 친구 관련 API 컨트롤러
- */
 @RestController
 @RequestMapping("/api/friends")
 @RequiredArgsConstructor
@@ -23,89 +17,103 @@ public class FriendController {
 
     private final FriendService friendService;
 
-    /**
-     * 친구 요청 전송
-     */
-    @PostMapping("/request")
-    public ResponseEntity<MessageResponse> sendFriendRequest(@RequestBody FriendRequestSendRequest request) {
-        friendService.sendFriendRequest(request);
-        return ResponseEntity.ok(new MessageResponse("친구 요청이 전송되었습니다."));
+    @PostMapping(value = "/request", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MessageResponse> sendFriendRequest(
+            @RequestBody FriendRequestSendRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        friendService.sendFriendRequest(request, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("친구 요청이 전송되었습니다."));
     }
 
-    /**
-     * 친구 요청 수락
-     */
-    @PostMapping("/request/{requestId}/accept")
-    public ResponseEntity<MessageResponse> acceptFriendRequest(@RequestBody FriendAcceptRequest request) {
-        friendService.acceptFriendRequest(request);
-        return ResponseEntity.ok(new MessageResponse("친구 요청을 수락했습니다."));
+    @PostMapping(value = "/request/accept", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MessageResponse> acceptFriendRequest(
+            @RequestBody FriendAcceptRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        friendService.acceptFriendRequest(request, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("친구 요청을 수락했습니다."));
     }
 
-    /**
-     * 친구 요청 거절
-     */
-    @PostMapping("/request/{requestId}/reject")
-    public ResponseEntity<MessageResponse> rejectFriendRequest(@RequestBody FriendRejectRequest request) {
-        friendService.rejectFriendRequest(request);
-        return ResponseEntity.ok(new MessageResponse("친구 요청을 거절했습니다."));
+    @PostMapping(value = "/request/reject", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MessageResponse> rejectFriendRequest(
+            @RequestBody FriendRejectRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        friendService.rejectFriendRequest(request, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("친구 요청을 거절했습니다."));
     }
 
-    /**
-     * 친구 목록 조회
-     */
-    @GetMapping
-    public ResponseEntity<FriendListResponse> getFriendList() {
-        return ResponseEntity.ok(friendService.getFriendList());
+    @PostMapping(value = "/request/cancel", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MessageResponse> cancelSentFriendRequest(
+            @RequestBody FriendCancelRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        friendService.cancelSentFriendRequest(request, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("친구 요청을 취소했습니다."));
     }
 
-    /**
-     * 받은 친구 요청 목록 조회
-     */
     @GetMapping("/requests")
-    public ResponseEntity<FriendRequestListResponse> getReceivedRequests() {
-        return ResponseEntity.ok(friendService.getReceivedFriendRequests());
+    public ResponseEntity<FriendRequestListResponse> getReceivedRequests(HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(friendService.getReceivedFriendRequests(httpRequest));
     }
 
-    /**
-     * 닉네임으로 사용자 검색
-     */
-    @GetMapping("/search")
-    public ResponseEntity<FriendSearchResponse> searchUsersByNickname(@RequestParam String nickname) {
-        return ResponseEntity.ok(friendService.searchUsersByNickname(nickname));
+    @PostMapping(value = "/requests/sent", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SentFriendRequestListResponse> getSentRequests(HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(friendService.getSentFriendRequests(httpRequest));
     }
 
-    /**
-     * 친구 삭제
-     */
-    @DeleteMapping("/{friendId}")
-    public ResponseEntity<MessageResponse> deleteFriend(@PathVariable Long friendId) {
-        friendService.deleteFriend(friendId);
-        return ResponseEntity.ok(new MessageResponse("친구가 삭제되었습니다."));
+    @GetMapping("/list")
+    public ResponseEntity<FriendListResponse> getFriendList(HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(friendService.getOnlineOfflineFriendList(httpRequest));
     }
 
-    /**
-     * 사용자 차단
-     */
-    @PostMapping("/block/{userId}")
-    public ResponseEntity<MessageResponse> blockUser(@PathVariable Long userId) {
-        friendService.blockUser(userId);
-        return ResponseEntity.ok(new MessageResponse("해당 사용자를 차단하였습니다."));
+    @PostMapping(value = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MessageResponse> deleteFriend(
+            @RequestBody FriendDeleteRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        friendService.deleteFriend(request, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("친구가 삭제되었습니다."));
     }
 
-    /**
-     * 사용자 차단 해제
-     */
-    @DeleteMapping("/block/{userId}")
-    public ResponseEntity<MessageResponse> unblockUser(@PathVariable Long userId) {
-        friendService.unblockUser(userId);
-        return ResponseEntity.ok(new MessageResponse("차단을 해제하였습니다."));
+    @PostMapping(value = "/block", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MessageResponse> blockUser(
+            @RequestBody FriendBlockRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        friendService.blockUser(request, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("해당 사용자를 차단하였습니다."));
     }
 
-    /**
-     * 차단한 사용자 목록 조회
-     */
+    @PostMapping(value = "/unblock", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MessageResponse> unblockUser(
+            @RequestBody FriendBlockRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        friendService.unblockUser(request, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("차단을 해제하였습니다."));
+    }
+
     @GetMapping("/blocked")
-    public ResponseEntity<BlockedFriendListResponse> getBlockedUsers() {
-        return ResponseEntity.ok(friendService.getBlockedUsers());
+    public ResponseEntity<BlockedFriendListResponse> getBlockedUsers(HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(friendService.getBlockedUsers(httpRequest));
+    }
+
+    @PostMapping(value = "/search", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<FriendSearchResponse> searchUsersByNickname(
+            @RequestBody FriendSearchRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        return ResponseEntity.ok(friendService.searchUsersByNickname(request, httpRequest));
+    }
+
+    @PostMapping(value = "/report", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MessageResponse> reportUser(
+            @RequestBody FriendReportRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        friendService.reportUser(request, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("해당 사용자가 신고되었습니다."));
     }
 }

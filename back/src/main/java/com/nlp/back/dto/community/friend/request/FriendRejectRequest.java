@@ -1,23 +1,19 @@
 package com.nlp.back.dto.community.friend.request;
 
-import lombok.Data;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 /**
- * 친구 요청 거절 DTO
- * <p>
- * 받은 친구 요청을 거절할 때 사용됩니다.
- * </p>
- *
- * 예시 요청:
- * {
- *   "requestId": 12
- * }
+ * [FriendRejectRequest]
+ * 친구 요청 거절 요청 DTO
  */
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class FriendRejectRequest {
 
-    /**
-     * 거절할 친구 요청 ID
-     */
-    private Long receiverId;
+    @NotNull(message = "requestId는 필수입니다.")
+    private Long requestId;
 }

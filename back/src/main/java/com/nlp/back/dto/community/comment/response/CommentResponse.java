@@ -1,60 +1,72 @@
 package com.nlp.back.dto.community.comment.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.nlp.back.entity.community.Comment;
-import com.nlp.back.entity.community.Reply;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * 댓글 응답 DTO
- * <p>
- * 댓글 단건 정보와 해당 댓글의 대댓글 리스트를 포함합니다.
- * </p>
+ * 댓글/대댓글 단일 응답 DTO (Flat 구조)
  */
-@Data
+@Getter
 @AllArgsConstructor
+@Builder
 public class CommentResponse {
 
-    private Long commentId;
-    private Long writerId;
-    private String writerNickname;
-    private String profileImageUrl;
+    private Long id;
+
+    @JsonProperty("post_id")
+    private Long postId;
+
+    @JsonProperty("parent_id")
+    private Long parentId;
+
     private String content;
+
+    @JsonProperty("emotion_score")
+    private Double emotionScore;
+
+    private AuthorDto author;
+
+    @JsonProperty("created_at")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
+
+    @JsonProperty("updated_at")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updatedAt;
-    private int likeCount;
-    private boolean liked;
-        private List<ReplyResponse> replies;
 
-    /**
-     * Comment → CommentResponse 변환 정적 메서드
-     *
-     * @param comment 댓글 엔티티
-     * @param replies 대댓글 리스트
-     * @return 댓글 응답 DTO
-     */
-    public static CommentResponse from(Comment comment, List<Reply> replies, Long currentUserId) {
-        boolean liked = comment.getLikes().stream()
-                .anyMatch(like -> like.getUser().getId().equals(currentUserId));
-
-        return new CommentResponse(
-                comment.getId(),
-                comment.getWriter().getId(),
-                comment.getWriter().getNickname(), // ✅ 닉네임 필드 사용
-                comment.getWriter().getProfileImageUrl(),
-                comment.getContent(),
-                comment.getCreatedAt(),
-                comment.getUpdatedAt(),
-                comment.getLikes().size(),
-                liked,
-                replies.stream()
-                        .map(reply -> ReplyResponse.from(reply, currentUserId))
-                        .collect(Collectors.toList())
-        );
+    public static CommentResponse from(Comment comment) {
+        return CommentResponse.builder()
+                .id(comment.getId())
+                .postId(comment.getPost().getId())
+                .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
+                .content(comment.getContent())
+                .emotionScore(comment.getEmotionScore())
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
+                .author(AuthorDto.of(comment.getWriter()))
+                .build();
     }
 
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    public static class AuthorDto {
+        private Long id;
+        private String name;
+        private String profileImageUrl;
+
+        public static AuthorDto of(com.nlp.back.entity.user.User user) {
+            return AuthorDto.builder()
+                    .id(user.getId())
+                    .name(user.getNickname())
+                    .profileImageUrl(user.getProfileImageUrl())
+                    .build();
+        }
+    }
 }

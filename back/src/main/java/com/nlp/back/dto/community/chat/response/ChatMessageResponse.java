@@ -1,61 +1,31 @@
 package com.nlp.back.dto.community.chat.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import com.nlp.back.entity.chat.ChatMessageType;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 /**
- * 채팅 메시지 응답 DTO
+ * [ChatMessageResponse]
+ *
+ * 채팅 메시지 응답 DTO입니다.
+ * 메시지 유형에 따라 TEXT/IMAGE/FILE/READ_ACK 등으로 렌더링됩니다.
  */
-@Data
-@Builder
+@Getter
+@NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@ToString
 public class ChatMessageResponse {
 
-    /**
-     * 메시지 고유 ID
-     */
-    private Long messageId;
-
-    /**
-     * 채팅방 ID
-     */
-    private Long roomId;
-
-    /**
-     * 보낸 사용자 ID
-     */
-    private Long senderId;
-
-    /**
-     * 보낸 사용자 닉네임
-     */
-    private String nickname;
-
-    /**
-     * 보낸 사용자 프로필 이미지 URL
-     */
-    private String profileUrl;
-
-    /**
-     * 메시지 내용 (텍스트 또는 파일명)
-     */
-    private String content;
-
-    /**
-     * 메시지 타입 (TEXT, FILE, IMAGE 등)
-     */
-    private String type;
-
-    /**
-     * 서버에 저장된 파일명 (파일/이미지 메시지 전용)
-     */
-    private String storedFileName;
-
-    /**
-     * 메시지 전송 시각
-     */
-    private LocalDateTime sentAt;
+    private Long messageId;           // 메시지 고유 ID
+    private Long roomId;              // 채팅방 ID
+    private Long senderId;            // 보낸 사용자 ID
+    private String nickname;          // 사용자 닉네임
+    private String profileUrl;        // 프로필 이미지 URL
+    private String content;           // 메시지 본문 or 파일명
+    private ChatMessageType type;     // 메시지 타입 (TEXT, IMAGE, FILE, READ_ACK 등)
+    private String storedFileName;    // 저장된 파일명
+    private LocalDateTime sentAt;     // 전송 시각
+    private int unreadCount;          // 읽지 않은 인원 수
 }

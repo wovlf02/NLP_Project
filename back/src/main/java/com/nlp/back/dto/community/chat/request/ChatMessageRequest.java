@@ -1,36 +1,42 @@
 package com.nlp.back.dto.community.chat.request;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.nlp.back.entity.chat.ChatMessageType;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 /**
- * 채팅 메시지 전송 요청 DTO
- * <p>
- * WebSocket 또는 REST API 방식으로 텍스트/파일 메시지를 전송할 때 사용.
- * 메시지 타입은 TEXT, IMAGE, FILE 등으로 분기 가능.
- * </p>
+ * [ChatMessageRequest]
+ * WebSocket 또는 REST 방식으로 채팅 메시지를 전송할 때 사용하는 요청 DTO입니다.
  */
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ChatMessageRequest {
 
-    /**
-     * 메시지를 전송한 사용자 ID
-     */
-    private Long senderId;
-
+    /** 채팅방 ID */
+    @NotNull(message = "roomId는 필수입니다.")
+    @JsonProperty("room_id")
     private Long roomId;
 
-    /**
-     * 메시지 본문 내용 (텍스트 or 파일명)
-     */
+    /** 발신자 ID */
+    @NotNull(message = "senderId는 필수입니다.")
+    @JsonProperty("sender_id")
+    private Long senderId;
+
+    /** 메시지 본문 (TEXT, ENTER 타입일 경우 사용) */
     private String content;
 
-    /**
-     * 메시지 유형 (TEXT, IMAGE, FILE 등)
-     */
-    private String type;  // 수정: messageType → type 으로 명칭 통일
+    /** 메시지 타입 (TEXT, FILE, IMAGE, ENTER 등) */
+    @NotNull(message = "type은 필수입니다.")
+    private ChatMessageType type;
 
-    /**
-     * 서버에 저장된 파일명 (파일 메시지일 경우만 사용)
-     */
+    /** 저장된 파일 이름 (FILE, IMAGE 전용) */
+    @JsonProperty("stored_file_name")
     private String storedFileName;
 }

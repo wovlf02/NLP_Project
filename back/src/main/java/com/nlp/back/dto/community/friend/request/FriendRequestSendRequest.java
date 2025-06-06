@@ -1,20 +1,19 @@
 package com.nlp.back.dto.community.friend.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 /**
+ * [FriendRequestSendRequest]
  * 친구 요청 전송 요청 DTO
- * - 친구 요청을 받을 대상 사용자의 ID를 포함합니다.
  */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class FriendRequestSendRequest {
 
-    /** 요청 대상 사용자 ID */
+    @NotNull(message = "targetUserId는 필수입니다.")
     private Long targetUserId;
 }

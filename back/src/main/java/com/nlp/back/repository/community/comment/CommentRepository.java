@@ -7,34 +7,31 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 /**
- * 댓글(Comment) 관련 JPA Repository
- * <p>
- * 게시글에 달린 댓글을 조회하거나 댓글 수정, 삭제 등에 사용됩니다.
- * </p>
+ * [CommentRepository]
+ *
+ * 커뮤니티 댓글(Comment) 관련 JPA Repository입니다.
+ * - 게시글 기준 댓글 목록 조회
+ * - 댓글 수 카운트 등에 사용됩니다.
  */
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     /**
-     * 게시글 기준 댓글 전체 조회 (최신순)
-     *
-     * @param post 대상 게시글
-     * @return 댓글 리스트
+     * [최신순 댓글 조회]
      */
     List<Comment> findByPostOrderByCreatedAtDesc(Post post);
 
     /**
-     * 게시글 기준 댓글 전체 조회 (오래된 순)
+     * [등록순 댓글 조회]
      */
     List<Comment> findByPostOrderByCreatedAtAsc(Post post);
 
     /**
-     * 게시글 ID로 댓글 목록 조회
+     * [게시글 ID 기준 댓글 목록 조회]
      */
     List<Comment> findByPostId(Long postId);
 
     /**
-     * 댓글이 속한 게시글 ID와 함께 조회
+     * [게시글 ID 기준 댓글 수 카운트]
      */
     long countByPostId(Long postId);
-    List<Comment> findByPostAndIsDeletedFalseOrderByCreatedAtAsc(Post post);
 }

@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ce4d94c0-2ee7-4e97-a24b-c08b868c2095" name="변경" comment="">
+      <change afterPath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/request/CommentDeleteRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/request/CommentListRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/request/ReplyCreateRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/request/ReplyDeleteRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/request/ReplyUpdateRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/src/api/api.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/src/api/apiUrl.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/src/api/endpoint/auth.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/src/api/endpoint/block.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/src/api/endpoint/chat.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/src/api/endpoint/comment.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/src/api/endpoint/emotion.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/src/api/endpoint/friend.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/src/api/endpoint/post.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/src/api/endpoint/profile.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/.gitattributes" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/gradlew" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/gradlew.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/settings.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/BackApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/config/auth/EmailConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/config/auth/JwtProvider.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/config/auth/SecurityConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/config/socket/SocketIOConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/config/socket/WebSocketConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/config/web/RedisConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/config/web/WebConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/auth/AuthController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/community/attachment/AttachmentController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/community/block/BlockController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/community/chat/ChatAttachmentController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/community/chat/ChatMessageController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/community/chat/ChatRoomController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/community/chat/DirectChatController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/community/comment/CommentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/community/comment/CommentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/community/friend/FriendController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/community/friend/FriendReportController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/community/like/LikeController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/community/post/PostController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/community/report/ReportController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/file/FileUploadController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/controller/user/UserController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/request/EmailRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/request/EmailSendRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/request/EmailVerifyRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/request/LoginRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/request/NicknameCheckRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/request/PasswordChangeRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/request/PasswordConfirmRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/request/PasswordResetRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/request/RegisterRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/request/TokenRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/request/UserDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/request/UsernameCheckRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/response/LoginResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/response/TokenResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/auth/response/UserProfileResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/common/MessageResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/common/MessageResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/attachment/response/AttachmentDownloadResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/attachment/response/AttachmentListResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/attachment/response/AttachmentResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/block/response/BlockedCommentListResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/block/response/BlockedPostListResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/block/response/BlockedReplyListResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/block/response/BlockedTargetResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/chat/request/ChatJoinRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/chat/request/ChatMessageRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/chat/request/ChatRoomCreateRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/chat/request/DirectChatRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/chat/response/ChatFilePreviewResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/chat/response/ChatMessageResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/chat/response/ChatParticipantDto.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/chat/response/ChatRoomListResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/chat/response/ChatRoomResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/chat/response/MessageSendResultResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/request/CommentCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/request/CommentCreateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/request/CommentUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/request/CommentUpdateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/response/CommentListResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/response/CommentListResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/response/CommentResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/response/CommentResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/response/ReplyResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/comment/response/ReplyResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/friend/request/DirectChatRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/friend/request/FriendAcceptRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/friend/request/FriendRejectRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/friend/request/FriendRequestSendRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/friend/response/BlockedFriendListResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/friend/response/FriendActionResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/friend/response/FriendListResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/friend/response/FriendRequestListResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/friend/response/FriendSearchResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/like/response/LikeCountResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/like/response/LikeStatusResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/post/request/PostAutoFillRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/post/request/PostCreateRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/post/request/PostFilterRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/post/request/PostUpdateRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/post/request/ProblemReferenceRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/post/response/FavoritePostListResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/post/response/PopularPostListResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/post/response/PostAutoFillResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/post/response/PostListResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/post/response/PostResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/post/response/PostSimpleResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/post/response/PostSummaryResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/post/response/RankingResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/reply/request/ReplyCreateRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/report/request/ReportRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/report/response/ReportDetailResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/report/response/ReportListResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/dto/community/report/response/ReportResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/auth/User.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/chat/ChatMessage.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/chat/ChatParticipant.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/chat/ChatRoom.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/chat/ChatRoomType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/community/Attachment.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/community/Block.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/community/Comment.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/community/Like.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/community/Post.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/community/PostFavorite.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/community/Reply.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/community/Report.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/community/ReportStatus.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/friend/Friend.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/friend/FriendBlock.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/friend/FriendReport.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/friend/FriendReportStatus.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/friend/FriendRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/entity/friend/FriendRequestStatus.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/annotation/CurrentUser.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/annotation/LoginRequired.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/exception/BadRequestException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/exception/ConflictException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/exception/CustomException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/exception/ErrorCode.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/exception/ForbiddenException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/exception/GlobalExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/exception/NotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/exception/UnauthorizedException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/response/ApiResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/response/ErrorResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/response/ResponseMessage.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/security/SecurityUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/util/DateTimeUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/util/FileUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/global/util/ValidationUtil.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/auth/UserRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/chat/ChatMessageRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/chat/ChatParticipantRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/chat/ChatRoomRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/community/attachment/AttachmentRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/community/block/BlockRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/community/comment/CommentRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/community/comment/ReplyRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/community/like/LikeRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/community/post/PostFavoriteRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/community/post/PostRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/community/report/ReportRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/friend/FriendBlockRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/friend/FriendReportRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/friend/FriendRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/repository/friend/FriendRequestRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/security/auth/CustomUserDetails.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/security/auth/CustomUserDetailsService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/security/auth/JwtAuthenticationFilter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/auth/AuthService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/auth/UserService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/community/attachment/AttachmentService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/community/block/BlockService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/community/chat/ChatAttachmentService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/community/chat/ChatMessageService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/community/chat/ChatRoomService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/community/chat/DirectChatService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/community/chat/WebSocketChatService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/community/comment/CommentService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/community/friend/FriendReportService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/community/friend/FriendService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/community/like/LikeService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/community/post/PostService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/community/report/ReportService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/java/com/nlp/back/service/util/MailService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/resources/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/main/resources/package.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/src/test/java/com/nlp/back/BackApplicationTests.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/front/src/api/mockApi.js" beforeDir="false" afterPath="$PROJECT_DIR$/front/src/api/mockApi.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front/src/components/Board/CommentSection.js" beforeDir="false" afterPath="$PROJECT_DIR$/front/src/components/Board/CommentSection.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/front/src/pages/Login.js" beforeDir="false" afterPath="$PROJECT_DIR$/front/src/pages/Login.js" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$/back">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="back" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;wovlf02&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/wovlf02/NLP_Project.git&quot;,
+    &quot;accountId&quot;: &quot;44992d05-7bc0-4f43-a980-115c9ba31995&quot;
+  }
+}</component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2y7rbPex4m3TfsaUNCmfzlgiRKy" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.back 빌드.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RequestMappingsPanelOrder0": "0",
+    "RequestMappingsPanelOrder1": "1",
+    "RequestMappingsPanelWidth0": "75",
+    "RequestMappingsPanelWidth1": "75",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.BackApplication.executor": "Run",
+    "git-widget-placeholder": "dev",
+    "last_opened_file_path": "C:/NLP_Project/front/src/api",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2025.1.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\NLP_Project\front\src\api" />
+      <recent name="C:\NLP_Project\back\src\main\java\com\nlp\back\dto\community" />
+      <recent name="C:\NLP_Project\back\src\main\java\com\nlp\back\controller\community\comment" />
+      <recent name="C:\NLP_Project" />
+      <recent name="C:\NLP_Project\back\src\main\resources" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="BackApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
+      <module name="back.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.nlp.back.BackApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26094.121" />
+        <option value="bundled-js-predefined-d6986cc7102b-b26f3e71634d-JavaScript-IU-251.26094.121" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="디폴트 작업">
+      <changelist id="ce4d94c0-2ee7-4e97-a24b-c08b868c2095" name="변경" comment="" />
+      <created>1749196523560</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1749196523560</updated>
+      <workItem from="1749196524756" duration="6770000" />
+      <workItem from="1749213243553" duration="1067000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

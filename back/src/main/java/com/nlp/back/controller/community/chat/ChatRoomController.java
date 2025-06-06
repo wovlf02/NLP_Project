@@ -2,104 +2,106 @@ package com.nlp.back.controller.community.chat;
 
 import com.nlp.back.dto.common.MessageResponse;
 import com.nlp.back.dto.community.chat.request.ChatRoomCreateRequest;
-import com.nlp.back.dto.community.chat.request.ChatJoinRequest;
+import com.nlp.back.dto.community.chat.request.ChatRoomDeleteRequest;
+import com.nlp.back.dto.community.chat.request.ChatRoomDetailRequest;
+import com.nlp.back.dto.community.chat.response.ChatMessageResponse;
 import com.nlp.back.dto.community.chat.response.ChatRoomListResponse;
 import com.nlp.back.dto.community.chat.response.ChatRoomResponse;
+import com.nlp.back.service.community.chat.ChatMessageService;
 import com.nlp.back.service.community.chat.ChatRoomService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-/**
- * 채팅방 관리 컨트롤러
- * - 채팅방 생성, 입장, 퇴장, 조회, 삭제 기능 제공
- */
 @RestController
 @RequestMapping("/api/chat/rooms")
 @RequiredArgsConstructor
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
+    private final ChatMessageService chatMessageService;
 
     /**
-     * 채팅방 생성
-     *
-     * @param request 채팅방 생성 요청
-     * @return 생성된 채팅방 정보
+     * ✅ [추가] JSON 요청(이미지 없이) 채팅방 생성
      */
-    @PostMapping
-    public ResponseEntity<ChatRoomResponse> createChatRoom(@RequestBody ChatRoomCreateRequest request) {
-        ChatRoomResponse response = chatRoomService.createChatRoom(request);
-        return ResponseEntity.ok(response);
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<MessageResponse> createChatRoomJson(
+            @RequestBody ChatRoomCreateRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        ChatRoomResponse createdRoom = chatRoomService.createChatRoom(request, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("채팅방이 생성되었습니다.", createdRoom));
     }
 
     /**
-     * 로그인한 사용자의 채팅방 목록 조회
-     *
-     * @param userId 사용자 ID (✅ 추후 JWT 기반 인증으로 대체 예정)
-     * @return 참여 중인 채팅방 목록
+     * ✅ 기존: Multipart 요청(이미지 포함) 채팅방 생성
      */
-    @GetMapping
-    public ResponseEntity<List<ChatRoomListResponse>> getMyChatRooms(@RequestParam Long userId) {
-        List<ChatRoomListResponse> response = chatRoomService.getChatRoomsByUserId(userId);
-        return ResponseEntity.ok(response);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<MessageResponse> createChatRoom(
+            @RequestPart("request") ChatRoomCreateRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            HttpServletRequest httpRequest
+    ) {
+        request.setImage(image);
+        ChatRoomResponse createdRoom = chatRoomService.createChatRoom(request, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("채팅방이 생성되었습니다.", createdRoom));
     }
 
     /**
-     * 채팅방 상세 정보 조회
-     *
-     * @param roomId 채팅방 ID
-     * @return 채팅방 상세 정보
+     * ✅ 내 채팅방 목록 조회
      */
-    @GetMapping("/{roomId}")
-    public ResponseEntity<ChatRoomResponse> getChatRoom(@PathVariable Long roomId) {
-        ChatRoomResponse response = chatRoomService.getChatRoomById(roomId);
-        return ResponseEntity.ok(response);
+    @GetMapping("/my")
+    public ResponseEntity<MessageResponse> getMyChatRooms(HttpServletRequest httpRequest) {
+        List<ChatRoomListResponse> rooms = chatRoomService.getMyChatRooms(httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("채팅방 목록 조회 성공", rooms));
     }
 
     /**
-     * 채팅방 삭제 (빈 방 또는 관리자가 삭제할 때 사용)
-     *
-     * @param roomId 삭제할 채팅방 ID
-     * @return 삭제 완료 메시지
+     * ✅ 채팅방 상세 조회
+     */
+    @PostMapping("/detail")
+    public ResponseEntity<MessageResponse> getChatRoom(
+            @RequestBody ChatRoomDetailRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        ChatRoomResponse roomInfo = chatRoomService.getChatRoomById(request);
+        List<ChatMessageResponse> messages = chatMessageService.getAllMessages(request.getRoomId(), httpRequest);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("room_info", roomInfo);
+        result.put("messages", messages);
+
+        return ResponseEntity.ok(MessageResponse.of("채팅방 상세 조회 성공", result));
+    }
+
+    /**
+     * ✅ 기존: body로 요청받는 채팅방 삭제 (body에 roomId 등 정보)
+     */
+    @DeleteMapping
+    public ResponseEntity<MessageResponse> deleteChatRoom(
+            @RequestBody ChatRoomDeleteRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        chatRoomService.deleteChatRoom(request, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("채팅방이 삭제되었습니다."));
+    }
+
+    /**
+     * ✅ [신규] URL 경로로 roomId 받아서 채팅방 삭제 (프론트엔드에서 DELETE /api/chat/rooms/{roomId}로 요청할 때)
      */
     @DeleteMapping("/{roomId}")
-    public ResponseEntity<MessageResponse> deleteChatRoom(@PathVariable Long roomId) {
-        chatRoomService.deleteChatRoom(roomId);
-        return ResponseEntity.ok(new MessageResponse("채팅방이 삭제되었습니다."));
-    }
-
-    /**
-     * 채팅방 입장
-     *
-     * @param roomId 입장할 채팅방 ID
-     * @param request 입장 요청 (사용자 ID 포함)
-     * @return 입장 완료 메시지
-     */
-    @PostMapping("/{roomId}/join")
-    public ResponseEntity<MessageResponse> joinChatRoom(
-            @PathVariable Long roomId,
-            @RequestBody ChatJoinRequest request
+    public ResponseEntity<MessageResponse> deleteChatRoomById(
+            @PathVariable("roomId") Long roomId,   // ← 반드시 "roomId" 명시!
+            HttpServletRequest httpRequest
     ) {
-        chatRoomService.joinChatRoom(roomId, request);
-        return ResponseEntity.ok(new MessageResponse("채팅방에 입장했습니다."));
-    }
-
-    /**
-     * 채팅방 퇴장
-     *
-     * @param roomId 퇴장할 채팅방 ID
-     * @param request 퇴장 요청 (사용자 ID 포함)
-     * @return 퇴장 완료 메시지
-     */
-    @DeleteMapping("/{roomId}/exit")
-    public ResponseEntity<MessageResponse> exitChatRoom(
-            @PathVariable Long roomId,
-            @RequestBody ChatJoinRequest request
-    ) {
-        chatRoomService.exitChatRoom(roomId, request);
-        return ResponseEntity.ok(new MessageResponse("채팅방에서 퇴장했습니다."));
+        chatRoomService.deleteChatRoomById(roomId, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("채팅방이 삭제되었습니다."));
     }
 }

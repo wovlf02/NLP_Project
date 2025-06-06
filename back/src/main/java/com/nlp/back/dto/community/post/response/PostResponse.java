@@ -3,16 +3,17 @@ package com.nlp.back.dto.community.post.response;
 import com.nlp.back.entity.community.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * 게시글 상세 조회 응답 DTO
  */
-@Data
+@Getter
 @Builder
 @AllArgsConstructor
 public class PostResponse {
@@ -32,24 +33,22 @@ public class PostResponse {
     private int commentCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    /**
-     * 게시글에 첨부된 파일 URL 목록
-     */
     private List<String> attachmentUrls;
 
     /**
-     * Post 엔티티 → PostResponse DTO로 변환
+     * Post 엔티티를 PostResponse DTO로 변환
+     * liked / favorite 은 서비스에서 추가로 세팅 필요
      */
     public static PostResponse from(Post post) {
         return PostResponse.builder()
                 .postId(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
+                .category(post.getCategory() != null ? post.getCategory().name() : null)
                 .writerId(post.getWriter().getId())
                 .writerNickname(post.getWriter().getNickname())
                 .profileImageUrl(post.getWriter().getProfileImageUrl())
-                .likeCount(post.getLikes().size())
+                .likeCount(post.getLikes() != null ? post.getLikes().size() : 0)
                 .liked(false)
                 .favorite(false)
                 .viewCount(post.getViewCount())
@@ -61,9 +60,7 @@ public class PostResponse {
                         ? post.getAttachments().stream()
                         .map(att -> "/uploads/community/" + att.getStoredFileName())
                         .collect(Collectors.toList())
-                        : List.of()
-                )
+                        : Collections.emptyList())
                 .build();
     }
-
 }

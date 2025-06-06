@@ -2,37 +2,37 @@ package com.nlp.back.dto.community.friend.response;
 
 import com.nlp.back.entity.auth.User;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.util.List;
 
-/**
- * 닉네임 기반 사용자 검색 응답 DTO
- */
-@Data
+@Getter
 @AllArgsConstructor
 public class FriendSearchResponse {
 
     private List<UserSearchResult> results;
 
-    @Data
+    @Getter
     @AllArgsConstructor
+    @Builder
     public static class UserSearchResult {
         private Long userId;
         private String nickname;
         private String profileImageUrl;
         private boolean alreadyFriend;
         private boolean alreadyRequested;
+        private boolean blocked;
 
         public static UserSearchResult from(User user) {
-            return new UserSearchResult(
-                    user.getId(),
-                    user.getNickname(),
-                    user.getProfileImageUrl(),
-                    false,
-                    false
-            );
+            return UserSearchResult.builder()
+                    .userId(user.getId())
+                    .nickname(user.getNickname())
+                    .profileImageUrl(user.getProfileImageUrl())
+                    .alreadyFriend(false)
+                    .alreadyRequested(false)
+                    .blocked(false)
+                    .build();
         }
     }
 }
-

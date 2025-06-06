@@ -11,44 +11,26 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 차단(Block) 관련 JPA Repository
- * <p>
- * 사용자가 게시글, 댓글, 대댓글을 차단한 내역을 조회하거나 등록/삭제하는 데 사용됩니다.
- * </p>
+ * [BlockRepository]
+ *
+ * 게시글, 댓글, 대댓글, 사용자(User)에 대한 차단(Block) 정보를 관리하는 JPA Repository입니다.
+ * - 차단 등록 여부 확인
+ * - 차단한 항목 목록 조회
+ * (하드 삭제 방식이므로 isDeleted 조건 제거됨)
  */
 public interface BlockRepository extends JpaRepository<Block, Long> {
 
-    /**
-     * 사용자가 차단한 게시글 목록 조회
-     */
+    // ===== 차단 목록 조회 =====
+
     List<Block> findByUserAndPostIsNotNull(User user);
-
-    /**
-     * 사용자가 차단한 댓글 목록 조회
-     */
     List<Block> findByUserAndCommentIsNotNull(User user);
-
-    /**
-     * 사용자가 차단한 대댓글 목록 조회
-     */
     List<Block> findByUserAndReplyIsNotNull(User user);
+    List<Block> findByUserAndBlockedUserIsNotNull(User user);
 
-    /**
-     * 특정 게시글에 대한 차단 여부 조회
-     */
+    // ===== 차단 여부 확인 (중복 방지) =====
+
     Optional<Block> findByUserAndPost(User user, Post post);
-
-    /**
-     * 특정 댓글에 대한 차단 여부 조회
-     */
     Optional<Block> findByUserAndComment(User user, Comment comment);
-
-    /**
-     * 특정 대댓글에 대한 차단 여부 조회
-     */
     Optional<Block> findByUserAndReply(User user, Reply reply);
-
-    List<Block> findByUserAndPostIsNotNullAndIsDeletedFalse(User user);
-    List<Block> findByUserAndCommentIsNotNullAndIsDeletedFalse(User user);
-    List<Block> findByUserAndReplyIsNotNullAndIsDeletedFalse(User user);
+    Optional<Block> findByUserAndBlockedUser(User user, User blockedUser);
 }

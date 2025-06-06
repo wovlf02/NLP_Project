@@ -1,14 +1,18 @@
 package com.nlp.back.service.community.attachment;
 
+import com.nlp.back.dto.community.attachment.request.AttachmentIdRequest;
+import com.nlp.back.dto.community.attachment.request.AttachmentUploadRequest;
+import com.nlp.back.dto.community.attachment.request.PostIdRequest;
 import com.nlp.back.dto.community.attachment.response.AttachmentListResponse;
 import com.nlp.back.dto.community.attachment.response.AttachmentResponse;
-import com.nlp.back.entity.community.Attachment;
 import com.nlp.back.entity.community.Post;
 import com.nlp.back.global.exception.CustomException;
 import com.nlp.back.global.exception.ErrorCode;
-import com.nlp.back.global.security.SecurityUtil;
+import com.nlp.back.repository.auth.UserRepository;
 import com.nlp.back.repository.community.attachment.AttachmentRepository;
 import com.nlp.back.repository.community.post.PostRepository;
+import com.nlp.back.util.SessionUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -17,34 +21,45 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.MalformedURLException;
 import java.nio.file.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AttachmentService {
 
-    private static final String ATTACHMENT_DIR = "uploads/community/";
+    private static final Path ATTACHMENT_DIR = Paths.get("uploads/community");
 
     private final AttachmentRepository attachmentRepository;
     private final PostRepository postRepository;
-    private final SecurityUtil securityUtil;
+    private final UserRepository userRepository;
 
-    // ===== 첨부파일 업로드 =====
+    /**
+     * ✅ 게시글 첨부파일 업로드 (세션 기반 userId)
+     */
+    public int uploadPostFiles(AttachmentUploadRequest request, HttpServletRequest httpRequest) {
+        MultipartFile[] files = request.getFiles();
+        Long postId = request.getPostId();
+        Long userId = SessionUtil.getUserId(httpRequest);
 
-    public int uploadPostFiles(Long postId, MultipartFile[] files) {
+        if (files == null || files.length == 0) {
+            throw new CustomException(ErrorCode.MISSING_PARAMETER);
+        }
+
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if (!post.getWriter().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
 
         List<Attachment> attachments = saveFiles(files).stream()
-                .map(fileMeta -> Attachment.builder()
+                .map(meta -> Attachment.builder()
                         .post(post)
-                        .originalFileName(fileMeta.original())
-                        .storedFileName(fileMeta.stored())
-                        .contentType(fileMeta.type())
-                        .previewAvailable(isPreviewable(fileMeta.type()))
+                        .originalFileName(meta.original())
+                        .storedFileName(meta.stored())
+                        .contentType(meta.type())
+                        .previewAvailable(isPreviewable(meta.type()))
                         .build())
                 .collect(Collectors.toList());
 
@@ -52,56 +67,57 @@ public class AttachmentService {
         return attachments.size();
     }
 
-    // ===== 목록 조회 =====
-
-    public AttachmentListResponse getPostAttachments(Long postId) {
-        List<Attachment> list = attachmentRepository.findByPostId(postId);
+    /**
+     * ✅ 첨부파일 목록 조회
+     */
+    public AttachmentListResponse getPostAttachments(PostIdRequest request) {
+        List<Attachment> list = attachmentRepository.findByPostId(request.getPostId());
         return toListResponse(list);
     }
 
-    // ===== 파일 다운로드 =====
-
-    public Resource downloadAttachment(Long attachmentId) {
-        Attachment attachment = attachmentRepository.findById(attachmentId)
-                .orElseThrow(() -> new IllegalArgumentException("첨부파일을 찾을 수 없습니다."));
+    /**
+     * ✅ 첨부파일 다운로드
+     */
+    public Resource downloadAttachment(AttachmentIdRequest request) {
+        Attachment attachment = attachmentRepository.findById(request.getAttachmentId())
+                .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
 
         try {
-            Path path = Paths.get(ATTACHMENT_DIR).resolve(attachment.getStoredFileName()).normalize();
+            Path path = ATTACHMENT_DIR.resolve(attachment.getStoredFileName()).normalize();
             Resource resource = new UrlResource(path.toUri());
 
-            if (!resource.exists()) {
-                throw new RuntimeException("파일이 존재하지 않습니다.");
+            if (!resource.exists() || !resource.isReadable()) {
+                throw new CustomException(ErrorCode.FILE_NOT_FOUND);
             }
 
             return resource;
         } catch (MalformedURLException e) {
-            throw new RuntimeException("파일 경로 오류", e);
+            throw new CustomException(ErrorCode.FILE_DOWNLOAD_FAILED);
         }
     }
 
-    // ===== 삭제 =====
+    /**
+     * ✅ 첨부파일 삭제 (세션 기반 사용자 확인)
+     */
+    public void deleteAttachment(AttachmentIdRequest request, HttpServletRequest httpRequest) {
+        Long userId = SessionUtil.getUserId(httpRequest);
 
-    public void deleteAttachment(Long attachmentId) {
-        Attachment attachment = attachmentRepository.findById(attachmentId)
-                .orElseThrow(() -> new IllegalArgumentException("삭제할 첨부파일이 존재하지 않습니다."));
+        Attachment attachment = attachmentRepository.findById(request.getAttachmentId())
+                .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
 
-        Long currentUserId = securityUtil.getCurrentUserId();
-        Long ownerId = attachment.getPost().getWriter().getId();
-
-        if (!ownerId.equals(currentUserId)) {
-            throw new CustomException(ErrorCode.ACCESS_DENIED); // 권한 없음
+        if (!attachment.getPost().getWriter().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
         }
 
-        Path filePath = Paths.get(ATTACHMENT_DIR).resolve(attachment.getStoredFileName()).normalize();
+        Path filePath = ATTACHMENT_DIR.resolve(attachment.getStoredFileName()).normalize();
         try {
             Files.deleteIfExists(filePath);
         } catch (Exception e) {
-            throw new RuntimeException("파일 삭제 중 오류 발생", e);
+            throw new CustomException(ErrorCode.FILE_DELETE_FAILED);
         }
 
         attachmentRepository.delete(attachment);
     }
-
 
     // ===== 내부 유틸 =====
 
@@ -115,6 +131,7 @@ public class AttachmentService {
                         .previewAvailable(file.isPreviewAvailable())
                         .build())
                 .collect(Collectors.toList());
+
         return new AttachmentListResponse(result);
     }
 
@@ -122,9 +139,8 @@ public class AttachmentService {
 
     private List<FileMeta> saveFiles(MultipartFile[] files) {
         try {
-            Path dirPath = Paths.get(ATTACHMENT_DIR);
-            if (!Files.exists(dirPath)) {
-                Files.createDirectories(dirPath);
+            if (!Files.exists(ATTACHMENT_DIR)) {
+                Files.createDirectories(ATTACHMENT_DIR);
             }
 
             return Arrays.stream(files)
@@ -132,17 +148,17 @@ public class AttachmentService {
                     .map(file -> {
                         String original = file.getOriginalFilename();
                         if (original == null || !original.contains(".")) {
-                            throw new IllegalArgumentException("파일 이름이 유효하지 않습니다: 확장자가 없습니다.");
+                            throw new CustomException(ErrorCode.INVALID_INPUT);
                         }
 
                         String extension = original.substring(original.lastIndexOf('.') + 1);
                         String stored = UUID.randomUUID() + "_" + original;
 
                         try {
-                            Path target = dirPath.resolve(stored);
+                            Path target = ATTACHMENT_DIR.resolve(stored);
                             Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
                         } catch (Exception e) {
-                            throw new RuntimeException("파일 저장 실패", e);
+                            throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED);
                         }
 
                         return new FileMeta(original, stored, extension);
@@ -150,12 +166,12 @@ public class AttachmentService {
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
-            throw new RuntimeException("파일 저장 실패", e);
+            throw new CustomException(ErrorCode.FILE_UPLOAD_FAILED);
         }
     }
 
-    private boolean isPreviewable(String contentTypeOrExtension) {
-        String lower = contentTypeOrExtension.toLowerCase();
-        return lower.matches(".*(jpg|jpeg|png|gif|bmp|webp)$") || lower.startsWith("image/");
+    private boolean isPreviewable(String type) {
+        String lower = type.toLowerCase();
+        return lower.startsWith("image/") || lower.matches(".*(jpg|jpeg|png|gif|bmp|webp)$");
     }
 }

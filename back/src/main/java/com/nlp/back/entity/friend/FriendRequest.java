@@ -7,11 +7,11 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 /**
- * 친구 요청 엔티티 (MySQL 기반)
+ * 친구 요청 엔티티
  */
 @Entity
 @Table(
-        name = "friend_request", // ✅ 테이블명 소문자
+        name = "friend_request",
         uniqueConstraints = @UniqueConstraint(name = "uk_sender_receiver", columnNames = {"sender_id", "receiver_id"}),
         indexes = {
                 @Index(name = "idx_sender", columnList = "sender_id"),
@@ -20,14 +20,16 @@ import java.time.LocalDateTime;
         }
 )
 @Getter
-@Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 public class FriendRequest {
 
+    /**
+     * 기본키 - AUTO_INCREMENT
+     */
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // ✅ MySQL 자동 증가 키
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     /**
@@ -45,6 +47,12 @@ public class FriendRequest {
     private User receiver;
 
     /**
+     * 요청 메시지 (선택)
+     */
+    @Column(length = 255)
+    private String message;
+
+    /**
      * 요청 생성 시각
      */
     @Column(name = "requested_at", nullable = false, updatable = false)
@@ -57,30 +65,27 @@ public class FriendRequest {
     private LocalDateTime respondedAt;
 
     /**
-     * 요청 상태
+     * 요청 상태 (PENDING, ACCEPTED, REJECTED)
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(nullable = false, length = 20)
     private FriendRequestStatus status;
 
     /**
-     * 논리 삭제 여부
+     * 삭제 여부 (기본값 false)
      */
     @Builder.Default
     @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    private Boolean isDeleted = false;
 
     /**
-     * 삭제 시각
+     * 요청 생성 시 기본값 자동 설정
      */
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-
     @PrePersist
     protected void onCreate() {
         if (this.requestedAt == null) this.requestedAt = LocalDateTime.now();
         if (this.status == null) this.status = FriendRequestStatus.PENDING;
-        this.isDeleted = false;
+        if (this.isDeleted == null) this.isDeleted = false;
     }
 
     // ===== 비즈니스 로직 =====
@@ -95,16 +100,6 @@ public class FriendRequest {
         if (this.status != FriendRequestStatus.PENDING) return;
         this.status = FriendRequestStatus.REJECTED;
         this.respondedAt = LocalDateTime.now();
-    }
-
-    public void softDelete() {
-        this.isDeleted = true;
-        this.deletedAt = LocalDateTime.now();
-    }
-
-    public void restore() {
-        this.isDeleted = false;
-        this.deletedAt = null;
     }
 
     // ===== 상태 유틸 =====

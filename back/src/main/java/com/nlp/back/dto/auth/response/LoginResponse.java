@@ -1,27 +1,23 @@
 package com.nlp.back.dto.auth.response;
 
-import lombok.AllArgsConstructor;
+import com.nlp.back.entity.auth.User;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
- * 로그인 성공 시 반환되는 응답 DTO입니다.
- * 클라이언트는 발급받은 access & refresh 토큰을 저장하고 활용합니다.
+ * 로그인 응답 DTO (화면 전용 최소 필드만 포함)
  */
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class LoginResponse {
 
-    /**
-     * Access Token (1시간 유효)
-     */
-    private String accessToken;
+    private String name;
+    private String email;
 
-    /**
-     * Refresh Token (14일 유효)
-     */
-    private String refreshToken;
+    public static LoginResponse from(User user) {
+        return LoginResponse.builder()
+                .name(user.getName())
+                .email(user.getEmail())
+                .build();
+    }
 }

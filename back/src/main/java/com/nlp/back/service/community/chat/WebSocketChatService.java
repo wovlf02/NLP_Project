@@ -4,60 +4,107 @@ import com.nlp.back.dto.community.chat.request.ChatMessageRequest;
 import com.nlp.back.dto.community.chat.response.ChatMessageResponse;
 import com.nlp.back.entity.auth.User;
 import com.nlp.back.entity.chat.ChatMessage;
+import com.nlp.back.entity.chat.ChatMessageType;
 import com.nlp.back.entity.chat.ChatRoom;
+import com.nlp.back.global.exception.CustomException;
+import com.nlp.back.global.exception.ErrorCode;
+import com.nlp.back.repository.auth.UserRepository;
 import com.nlp.back.repository.chat.ChatMessageRepository;
 import com.nlp.back.repository.chat.ChatRoomRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
+/**
+ * [WebSocketChatService]
+ * WebSocket 기반 실시간 채팅 메시지 저장 및 응답 서비스
+ */
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class WebSocketChatService {
 
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final UserRepository userRepository;
+    private final ChatReadService chatReadService;
 
     /**
-     * 텍스트 메시지를 저장하고 응답으로 변환합니다.
+     * ✅ 채팅 메시지 저장 및 응답 생성
+     * - TEXT, IMAGE, FILE, ENTER 타입만 저장
+     * - READ_ACK는 저장되지 않음
      *
-     * @param request 클라이언트 요청 메시지
-     * @return 저장된 메시지 응답 DTO
+     * @param request 클라이언트로부터 받은 메시지
+     * @param userId  세션에서 추출한 전송자 ID
+     * @return ChatMessageResponse
      */
-    public ChatMessageResponse saveTextMessage(ChatMessageRequest request) {
+    public ChatMessageResponse saveMessage(ChatMessageRequest request, Long userId) {
+        if (request.getType() == null) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+
+        if (request.getType() == ChatMessageType.READ_ACK) {
+            return null; // 저장 안함
+        }
+
         ChatRoom room = chatRoomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 채팅방을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
-        // 실제 인증 사용자가 있다면 아래 UserService 등에서 가져올 수 있음
-        User sender = User.builder().id(request.getSenderId()).build();
+        User sender = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        // ✅ 메시지 엔티티 생성 및 저장
         ChatMessage message = ChatMessage.builder()
                 .chatRoom(room)
                 .sender(sender)
                 .type(request.getType())
                 .content(request.getContent())
+                .storedFileName(request.getStoredFileName())
                 .sentAt(LocalDateTime.now())
                 .build();
 
         chatMessageRepository.save(message);
-        return toResponse(message);
+
+        // ✅ 미리보기 메시지 및 최종 메시지 갱신
+        if (request.getType().isPreviewType()) {
+            room.setLastMessage(generatePreview(message));
+            room.setLastMessageAt(message.getSentAt());
+            chatRoomRepository.save(room);
+        }
+
+        // ✅ 미읽음 인원 수 계산
+        int unreadCount = chatReadService.getUnreadCountForMessage(message.getId());
+
+        return ChatMessageResponse.builder()
+                .messageId(message.getId())
+                .roomId(room.getId())
+                .senderId(sender.getId())
+                .nickname(sender.getNickname())
+                .profileUrl(Optional.ofNullable(sender.getProfileImageUrl()).orElse(""))
+                .content(message.getContent())
+                .type(message.getType())
+                .storedFileName(message.getStoredFileName())
+                .sentAt(message.getSentAt())
+                .unreadCount(unreadCount)
+                .build();
     }
 
     /**
-     * ChatMessage → ChatMessageResponse 변환
+     * ✅ 미리보기 텍스트 생성
+     *
+     * @param message 메시지 객체
+     * @return 미리보기 문자열
      */
-    private ChatMessageResponse toResponse(ChatMessage message) {
-        return ChatMessageResponse.builder()
-                .messageId(message.getId())
-                .roomId(message.getChatRoom().getId())
-                .senderId(message.getSender().getId())
-                .nickname(message.getSender().getNickname()) // Optional: sender에 nickname 포함된 경우
-                .profileUrl(message.getSender().getProfileImageUrl()) // Optional
-                .type(message.getType())
-                .content(message.getContent())
-                .storedFileName(message.getStoredFileName()) // Optional: FILE 메시지 대응
-                .sentAt(message.getSentAt())
-                .build();
+    private String generatePreview(ChatMessage message) {
+        if (message == null || message.getType() == null) return "";
+
+        return switch (message.getType()) {
+            case FILE, IMAGE -> "[파일]";
+            case TEXT, ENTER -> message.getContent();
+            default -> "";
+        };
     }
 }

@@ -4,36 +4,40 @@ import com.nlp.back.entity.community.Comment;
 import com.nlp.back.entity.community.Post;
 import com.nlp.back.entity.community.Reply;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 /**
- * 대댓글(Reply) 관련 JPA Repository
- * <p>
- * 댓글(Comment)에 달린 대댓글을 조회하거나 정렬할 때 사용됩니다.
- * </p>
+ * [ReplyRepository]
+ *
+ * 대댓글(Reply) 관련 JPA Repository입니다.
+ * - 댓글 및 게시글 기준 대댓글 조회
+ * - 삭제 여부 조건은 제외됨 (하드 삭제 방식)
  */
 public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
     /**
-     * 특정 댓글에 달린 대댓글 목록 조회 (최신순)
-     *
-     * @param comment 대상 댓글
-     * @return 대댓글 리스트
+     * 댓글 기준 전체 대댓글 조회
+     */
+    List<Reply> findByComment(Comment comment);
+
+    /**
+     * 게시글 기준 전체 대댓글 조회
+     */
+    List<Reply> findByPost(Post post);
+
+    /**
+     * 댓글 기준 최신순 정렬 대댓글 조회
      */
     List<Reply> findByCommentOrderByCreatedAtDesc(Comment comment);
 
     /**
-     * 댓글 ID로 대댓글 조회
+     * 댓글 ID 기준 대댓글 조회
      */
     List<Reply> findByCommentId(Long commentId);
 
     /**
-     * 특정 댓글에 대한 대댓글 개수 조회
+     * 댓글 ID 기준 대댓글 수 조회
      */
     long countByCommentId(Long commentId);
-    @Query("SELECT r FROM Reply r WHERE r.post = :post AND r.isDeleted = false")
-    List<Reply> findByPostAndIsDeletedFalse(@Param("post") Post post);
 }
