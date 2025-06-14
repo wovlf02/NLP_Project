@@ -47,7 +47,7 @@ export const authApi = {
         }
 
         // 비밀번호 필드 제외하고 반환
-        const {password: _, ...userWithoutPassword} = user;
+        const { password: _, ...userWithoutPassword } = user;
         return response(userWithoutPassword);
     },
 
@@ -69,7 +69,7 @@ export const authApi = {
         _users.push(newUser);
 
         // 비밀번호 필드 제외하고 반환
-        const {password: _, ...userWithoutPassword} = newUser;
+        const { password: _, ...userWithoutPassword } = newUser;
         return response(userWithoutPassword);
     }
 };
@@ -113,7 +113,7 @@ export const boardApi = {
         }
 
         // 조회수 증가
-        const updatedPost = {...post, views: post.views + 1};
+        const updatedPost = { ...post, views: post.views + 1 };
         _posts = _posts.map(p => p.id === postId ? updatedPost : p);
 
         return response(updatedPost);
@@ -132,7 +132,7 @@ export const boardApi = {
         const newPost = {
             id: _posts.length + 1,
             ...postData,
-            author: {id: author.id, name: author.name},
+            author: { id: author.id, name: author.name },
             created_at: new Date().toISOString().split('T')[0],
             views: 0,
             likes: 0,
@@ -157,7 +157,7 @@ export const boardApi = {
             return response(null, false, '게시글 수정 권한이 없습니다.');
         }
 
-        const updatedPost = {...post, ...postData};
+        const updatedPost = { ...post, ...postData };
         _posts = _posts.map(p => p.id === postId ? updatedPost : p);
 
         return response(updatedPost);
@@ -178,7 +178,7 @@ export const boardApi = {
         }
 
         _posts = _posts.filter(p => p.id !== postId);
-        return response({success: true});
+        return response({ success: true });
     },
 
     // 댓글 목록 조회
@@ -224,7 +224,7 @@ export const boardApi = {
             id: _comments.length + 1,
             post_id: post.id,
             parent_id: commentData.parent_id || null,
-            author: {id: user.id, name: user.name},
+            author: { id: user.id, name: user.name },
             content: commentData.content,
             created_at: new Date().toISOString().split('T')[0],
             likes: 0,
@@ -270,12 +270,12 @@ export const chatApi = {
         // 참여자 정보 조회
         const participants = roomData.participantIds.map(id => {
             const user = _users.find(u => u.id === id);
-            return user ? {id: user.id, name: user.name} : null;
+            return user ? { id: user.id, name: user.name } : null;
         }).filter(Boolean);
 
         // 방장도 참여자에 추가
         if (!participants.some(p => p.id === creator.id)) {
-            participants.push({id: creator.id, name: creator.name});
+            participants.push({ id: creator.id, name: creator.name });
         }
 
         const newRoom = {
@@ -331,7 +331,7 @@ export const chatApi = {
         const newMessage = {
             id: _chatMessages.length + 1,
             roomId: messageData.roomId,
-            sender: {id: sender.id, name: sender.name},
+            sender: { id: sender.id, name: sender.name },
             text: messageData.text,
             timestamp: new Date().toISOString(),
             emotionScore
@@ -441,7 +441,7 @@ export const friendsApi = {
         // 요청 목록에서 제거
         _friendRequests = _friendRequests.filter(r => r.id !== requestId);
 
-        return response({success: true});
+        return response({ success: true });
     },
 
     // 친구 삭제
@@ -457,7 +457,7 @@ export const friendsApi = {
         // 친구 목록에서 제거
         _friends = _friends.filter(f => f.id !== friendId);
 
-        return response({success: true});
+        return response({ success: true });
     },
 
     // 사용자 차단
@@ -504,7 +504,7 @@ export const friendsApi = {
         // 차단 목록에서 제거
         _blockedUsers = _blockedUsers.filter(b => b.id !== userId);
 
-        return response({success: true});
+        return response({ success: true });
     }
 };
 
@@ -521,7 +521,7 @@ export const profileApi = {
         }
 
         // 비밀번호 필드 제외하고 반환
-        const {password: _, ...userWithoutPassword} = user;
+        const { password: _, ...userWithoutPassword } = user;
 
         return response({
             ...userWithoutPassword,
@@ -542,11 +542,11 @@ export const profileApi = {
         }
 
         // 사용자 정보 업데이트
-        const updatedUser = {...user, ...profileData};
+        const updatedUser = { ...user, ...profileData };
         _users = _users.map(u => u.id === userId ? updatedUser : u);
 
         // 비밀번호 필드 제외하고 반환
-        const {password: _, ...userWithoutPassword} = updatedUser;
+        const { password: _, ...userWithoutPassword } = updatedUser;
 
         return response(userWithoutPassword);
     },
@@ -567,7 +567,7 @@ export const emotionApi = {
         await delay(DELAY);
 
         if (!text) {
-            return response({score: 0.5}, false, '분석할 텍스트가 없습니다.');
+            return response({ score: 0.5 }, false, '분석할 텍스트가 없습니다.');
         }
 
         // TODO: 실제 NLP 기반 감정 분석 모델 연동 코드

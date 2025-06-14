@@ -174,42 +174,34 @@ function getEmotionIcon(score) {
     return '😐'; // 중립
 }
 
-function CommentSection({postId, onCommentsChange}) {
+function CommentSection({ postId, onCommentsChange }) {
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [replyingTo, setReplyingTo] = useState(null);
     const [replyContent, setReplyContent] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [currentUserId, setCurrentUserId] = useState(1); // 임시 사용자 ID
+    const [currentUserId] = useState(1); // 임시 사용자 ID
 
     // 감정 분석 관련 상태
     const [showWarning, setShowWarning] = useState(false);
     const [pendingCommentData, setPendingCommentData] = useState(null);
     const [pendingEmotionScore, setPendingEmotionScore] = useState(null);
-    const [violationType, setViolationType] = useState('general');
+    const [pendingViolationType, setPendingViolationType] = useState('');
+    const [pendingIsReply, setPendingIsReply] = useState(false);
 
-    // 컴포넌트 외부에서도 사용할 수 있도록 함수를 밖으로 이동
+    // 댓글 불러오기
     const fetchComments = async () => {
         try {
             setLoading(true);
-            console.log('Fetching comments for postId:', postId);
             const response = await boardApi.getComments(postId);
-
-            console.log('Comment API response:', response);
-
             if (response.success) {
                 setComments(response.data);
-                // 부모 컴포넌트에 댓글 수 변경 알림
-                if (onCommentsChange) {
-                    onCommentsChange(response.data.length);
-                }
+                if (onCommentsChange) onCommentsChange(response.data.length);
             } else {
-                console.error('Error from API:', response.error);
                 setError(response.error);
             }
         } catch (err) {
-            console.error('댓글 조회 실패:', err);
             setError('댓글을 불러오는 중 오류가 발생했습니다.');
         } finally {
             setLoading(false);
@@ -217,150 +209,108 @@ function CommentSection({postId, onCommentsChange}) {
     };
 
     useEffect(() => {
-        // 컴포넌트 마운트 시 댓글 불러오기
-        console.log('CommentSection useEffect triggered with postId:', postId);
         fetchComments();
     }, [postId]);
 
+    // 댓글 등록 핸들러
     const handleSubmitComment = async (e) => {
         e.preventDefault();
-
         if (!newComment.trim()) return;
 
         try {
-            // 감정 분석
             const emotionResponse = await emotionApi.analyzeEmotion(newComment);
+            if (emotionResponse.success && emotionResponse.data) {
+                const { score, violationType } = emotionResponse.data;
 
-            if (emotionResponse.success) {
-                const emotionScore = emotionResponse.data.score;
-                const detectedViolationType = emotionResponse.data.violationType;
-
-                // 부정적인 감정이 감지되면 (점수가 0.3 이하)
-                if (emotionScore <= 0.3 && detectedViolationType) {
-                    // 경고 모달 표시를 위한 데이터 저장
-                    setPendingCommentData({
-                        post_id: postId,
-                        content: newComment
-                    });
-                    setPendingEmotionScore(emotionScore);
-                    setViolationType(detectedViolationType);
+                // violationType 존재 시 모달 표시 (점수 무관)
+                if (violationType) {
+                    setPendingCommentData({ post_id: postId, content: newComment });
+                    setPendingViolationType(violationType);
+                    setPendingEmotionScore(score);
+                    setPendingIsReply(false);
                     setShowWarning(true);
                     return;
                 }
 
-                // 부정적 감정이 없는 경우 바로 댓글 작성
-                const commentResponse = await boardApi.createComment(
-                    {
-                        post_id: postId,
-                        content: newComment,
-                        emotion_score: emotionScore
-                    },
-                    currentUserId
-                );
-
-                if (commentResponse.success) {
-                    console.log('Comment created successfully:', commentResponse.data);
-                    // 새로운 댓글을 추가하고 댓글 목록 전체 갱신
-                    await fetchComments();
-                    setNewComment('');
-                } else {
-                    console.error('Failed to create comment:', commentResponse.error);
-                }
-            }
-        } catch (err) {
-            console.error('댓글 작성 실패:', err);
-        }
-    };
-
-    // 경고 모달에서 '등록하기' 버튼 클릭 시
-    const handleConfirmPost = async () => {
-        try {
-            const commentResponse = await boardApi.createComment(
-                {
-                    ...pendingCommentData,
-                    emotion_score: pendingEmotionScore
-                },
-                currentUserId
-            );
-
-            if (commentResponse.success) {
-                console.log('Comment created successfully:', commentResponse.data);
-                // 새 댓글을 추가하고 다시 댓글 목록을 갱신
-                await fetchComments();
+                // 위배 없으면 바로 등록
+                await createComment({ post_id: postId, content: newComment, emotion_score: score });
                 setNewComment('');
-            } else {
-                console.error('Failed to create comment:', commentResponse.error);
             }
-
-            // 모달 닫기 및 상태 초기화
-            setShowWarning(false);
-            setPendingCommentData(null);
-            setPendingEmotionScore(null);
         } catch (err) {
-            console.error('댓글 등록 실패:', err);
+            setError('댓글 작성 중 오류가 발생했습니다.');
         }
     };
 
-    // 경고 모달에서 '수정하기' 버튼 클릭 시
-    const handleCancelPost = () => {
-        setShowWarning(false);
-        // 수정을 위해 입력 필드는 그대로 유지
-    };
-
+    // 대댓글 등록 핸들러
     const handleSubmitReply = async (parentId) => {
         if (!replyContent.trim()) return;
-
         try {
-            // 감정 분석
             const emotionResponse = await emotionApi.analyzeEmotion(replyContent);
+            if (emotionResponse.success && emotionResponse.data) {
+                const { score, violationType } = emotionResponse.data;
 
-            if (emotionResponse.success) {
-                const emotionScore = emotionResponse.data.score;
-
-                // 부정적인 감정이 감지되면 (점수가 0.3 이하)
-                if (emotionScore <= 0.3) {
-                    // 경고 모달 표시를 위한 데이터 저장
-                    setPendingCommentData({
-                        post_id: postId,
-                        parent_id: parentId,
-                        content: replyContent
-                    });
-                    setPendingEmotionScore(emotionScore);
+                // violationType 존재 시 모달 표시
+                if (violationType) {
+                    setPendingCommentData({ post_id: postId, parent_id: parentId, content: replyContent });
+                    setPendingViolationType(violationType);
+                    setPendingEmotionScore(score);
+                    setPendingIsReply(true);
                     setShowWarning(true);
                     return;
                 }
 
-                // 대댓글 작성
-                const replyResponse = await boardApi.createComment(
-                    {
-                        post_id: postId,
-                        parent_id: parentId,
-                        content: replyContent,
-                        emotion_score: emotionScore
-                    },
-                    currentUserId
-                );
-
-                if (replyResponse.success) {
-                    console.log('Reply created successfully:', replyResponse.data);
-                    // 새로운 댓글을 추가하고 댓글 목록 전체 갱신
-                    await fetchComments();
-                    setReplyContent('');
-                    setReplyingTo(null);
-                } else {
-                    console.error('Failed to create reply:', replyResponse.error);
-                }
+                // 바로 등록
+                await createComment({ post_id: postId, parent_id: parentId, content: replyContent, emotion_score: score });
+                setReplyContent('');
+                setReplyingTo(null);
             }
         } catch (err) {
-            console.error('대댓글 작성 실패:', err);
+            setError('대댓글 작성 중 오류가 발생했습니다.');
         }
     };
 
-    // 댓글과 대댓글을 구조화
+    // 실제 댓글/대댓글 등록 함수
+    const createComment = async (commentData) => {
+        const response = await boardApi.createComment(commentData, currentUserId);
+        if (response.success) {
+            await fetchComments();
+        } else {
+            setError('댓글 등록에 실패했습니다.');
+        }
+    };
+
+    // 모달에서 '등록하기'
+    const handleConfirmPost = async () => {
+        await createComment({
+            ...pendingCommentData,
+            emotion_score: pendingEmotionScore
+        });
+        if (pendingIsReply) {
+            setReplyContent('');
+            setReplyingTo(null);
+        } else {
+            setNewComment('');
+        }
+        setShowWarning(false);
+        setPendingCommentData(null);
+        setPendingEmotionScore(null);
+        setPendingViolationType('');
+        setPendingIsReply(false);
+    };
+
+    // 모달에서 '수정하기'
+    const handleCancelPost = () => {
+        setShowWarning(false);
+        setPendingCommentData(null);
+        setPendingEmotionScore(null);
+        setPendingViolationType('');
+        setPendingIsReply(false);
+    };
+
+    // 댓글/대댓글 구조화
     const organizedComments = () => {
         const parents = comments.filter(c => !c.parent_id);
         const children = comments.filter(c => c.parent_id);
-
         return parents.map(parent => ({
             ...parent,
             replies: children.filter(child => child.parent_id === parent.id)
@@ -376,9 +326,10 @@ function CommentSection({postId, onCommentsChange}) {
         <CommentSectionContainer>
             {showWarning && (
                 <WarningModal
+                    score={pendingEmotionScore}
+                    violationType={pendingViolationType}
                     onCancel={handleCancelPost}
                     onConfirm={handleConfirmPost}
-                    violationType={violationType}
                 />
             )}
 

@@ -10,6 +10,11 @@
         <module name="back.main" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="back" target="21" />
+      <module name="back.main" target="21" />
+      <module name="back.test" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

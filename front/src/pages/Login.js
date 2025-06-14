@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
-import {Link, useNavigate} from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 // Mock API 임포트
-import {authApi} from '../api/mockApi';
+import { authApi } from '../api/mockApi';
 
 const LoginContainer = styled.div`
     max-width: 400px;
@@ -141,7 +141,7 @@ const TestAccountButton = styled.button`
     }
 `;
 
-function Login({onLogin}) {
+function Login({ onLogin }) {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -152,8 +152,8 @@ function Login({onLogin}) {
     const navigate = useNavigate();
 
     const handleChange = (e) => {
-        const {name, value} = e.target;
-        setFormData({...formData, [name]: value});
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
 
         // 에러 메시지 초기화
         if (error) setError('');
@@ -251,7 +251,7 @@ function Login({onLogin}) {
                 <TestAccountTitle>테스트 계정</TestAccountTitle>
                 <TestAccountInfo>
                     <TestAccountText>
-                        이메일: test@example.com<br/>
+                        이메일: test@example.com<br />
                         비밀번호: password
                     </TestAccountText>
                     <TestAccountButton onClick={fillTestAccount}>자동 입력</TestAccountButton>
