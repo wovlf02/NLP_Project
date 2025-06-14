@@ -38,6 +38,7 @@ public enum ErrorCode {
     ALREADY_JOINED(HttpStatus.BAD_REQUEST, "E4014", "이미 방에 참여한 상태입니다."),
     INVALID_ROOM_TYPE(HttpStatus.BAD_REQUEST, "E4015", "유효하지 않은 방 타입입니다."),
     INVALID_OPERATION(HttpStatus.BAD_REQUEST, "E4016", "허용되지 않는 작업입니다."),
+    EXAM_SCHEDULE_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "E40010", "시험 일정은 최대 3개까지만 등록할 수 있습니다."),
 
 
     // ❌ 중복 (409)
@@ -64,6 +65,7 @@ public enum ErrorCode {
     MESSAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "E4050", "해당 메시지를 찾을 수 없습니다."),
     TODO_NOT_FOUND(HttpStatus.NOT_FOUND, "E4051", "해당 TODO 항목을 찾을 수 없습니다."),
     STUDY_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "E4052", "해당 학습방을 찾을 수 없습니다."),
+    PROBLEM_NOT_FOUND(HttpStatus.NOT_FOUND, "E4053", "해당 문제를 찾을 수 없습니다."),
 
     // 🛠 서버 내부 오류 (500)
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E5001", "서버 내부 오류가 발생했습니다."),

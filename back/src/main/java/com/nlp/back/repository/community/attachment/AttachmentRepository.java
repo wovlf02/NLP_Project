@@ -1,5 +1,6 @@
 package com.nlp.back.repository.community.attachment;
 
+import com.nlp.back.entity.community.Attachment;
 import com.nlp.back.entity.community.Post;
 import org.springframework.data.jpa.repository.JpaRepository;
 

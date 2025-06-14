@@ -1,6 +1,7 @@
 package com.nlp.back.entity.community;
 
 import com.nlp.back.entity.auth.User;
+import com.nlp.back.entity.study.team.StudyRoom;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -49,6 +50,11 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id", nullable = false)
     private User writer;
+
+    /** 질문용 팀방 연동 (선택) */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "study_room_id")
+    private StudyRoom studyRoom;
 
     /** 생성일시 */
     @Column(name = "created_at", nullable = false, updatable = false)

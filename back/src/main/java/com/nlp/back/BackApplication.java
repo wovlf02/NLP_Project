@@ -9,6 +9,6 @@ public class BackApplication {
 
     public static void main(String[] args) {
         ApplicationContext ctx = SpringApplication.run(BackApplication.class, args);
-        System.out.println("🚀 NLP 백엔드 서버가 실행되었습니다! 🚀");
+        System.out.println("🚀 Hamcam 백엔드 서버가 실행되었습니다! 🚀");
     }
 }

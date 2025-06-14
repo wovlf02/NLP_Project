@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -18,31 +20,53 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /** 사용자 실명 */
+    @Column(nullable = false, unique = true, length = 50)
+    private String username;
+
     @Column(nullable = false, length = 50)
     private String name;
 
-    /** 이메일 (로그인 ID) */
-    @Column(nullable = false, unique = true, length = 100)
-    private String email;
-
-    /** 비밀번호 */
     @Column(nullable = false)
     private String password;
 
-    /** 생성 시각 */
+    @Column(nullable = false, length = 100)
+    private String nickname;
+
+    @Column(nullable = false, unique = true, length = 100)
+    private String email;
+
+    @Column(name = "profile_image_url", length = 500)
+    private String profileImageUrl;
+
+    @Column(nullable = false)
+    private Integer grade;
+
+    @Column(nullable = false, length = 50)
+    private String studyHabit;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    /** 수정 시각 */
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    /** 생성/수정 시각 자동 처리 */
+    @Column(length = 15)
+    private String phone;
+
+    @ElementCollection
+    @CollectionTable(name = "user_subjects", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "subject", nullable = false)
+    private List<String> subjects = new ArrayList<>();
+
+    /** ✅ 누적 포인트 필드 (기본값 0) */
+    @Column(name = "point", nullable = false)
+    private int point;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = this.createdAt;
+        this.point = 0;
     }
 
     @PreUpdate
@@ -50,12 +74,10 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
-    /** 비밀번호 변경 */
     public void updatePassword(String newPassword) {
         this.password = newPassword;
     }
 
-    /** ID로 유저 객체 생성 (참조용) */
     public static User of(Long id) {
         User user = new User();
         user.setId(id);

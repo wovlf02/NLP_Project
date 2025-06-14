@@ -7,6 +7,7 @@ import com.nlp.back.entity.auth.User;
 import com.nlp.back.global.exception.CustomException;
 import com.nlp.back.global.exception.ErrorCode;
 import com.nlp.back.repository.auth.UserRepository;
+import com.nlp.back.service.util.FileService;
 import com.nlp.back.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -14,6 +15,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -22,40 +27,52 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final FileService fileService;
 
     /**
-     * ✅ 회원가입 처리 (React JSON 기반)
+     * ✅ 회원가입 처리 (세션 기반)
      */
-    public void register(RegisterRequest request, HttpServletRequest httpRequest) {
-        // 1. 이메일 중복 검사
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
-        }
-
-        // 2. 유저 엔티티 생성 및 저장
+    public void register(RegisterRequest request, MultipartFile profileImage, HttpServletRequest httpRequest) {
+        // 1. 우선 User 저장
         User user = User.builder()
-                .name(request.getName())
+                .username(request.getUsername())
+                .password(request.getPassword())
                 .email(request.getEmail())
-                .password(request.getPassword()) // 실서비스에선 해싱 필수
+                .name(request.getName())
+                .nickname(request.getNickname())
+                .grade(request.getGrade())
+                .studyHabit(request.getStudyHabit())
+                .phone(request.getPhone())
+                .subjects(Optional.ofNullable(request.getSubjects()).orElseGet(ArrayList::new))
                 .build();
 
-        user = userRepository.save(user);
+        user = userRepository.save(user); // ✅ 먼저 DB에 저장
 
-        // 3. 자동 로그인 처리 (세션 저장)
-        httpRequest.getSession(true).setAttribute("userId", user.getId());
+        // 2. 이미지 업로드 → 세션 없이 userId 직접 전달
+        String profileImageUrl = null;
+        if (profileImage != null && !profileImage.isEmpty()) {
+            profileImageUrl = fileService.saveProfileImage(profileImage, user.getId()); // ✅ userId 직접 전달
+            user.setProfileImageUrl(profileImageUrl);
+            userRepository.save(user); // 다시 update
+        }
+
+        // 3. 세션에 로그인 처리 (자동 로그인)
+        httpRequest.getSession().setAttribute("userId", user.getId());
     }
 
+
     /**
-     * ✅ 로그인 처리
+     * ✅ 로그인 처리 (세션에 userId 저장)
      */
     public LoginResponse login(LoginRequest request, HttpServletRequest httpRequest) {
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_USER_NOT_FOUND));
 
         if (!user.getPassword().equals(request.getPassword())) {
             throw new CustomException(ErrorCode.LOGIN_PASSWORD_MISMATCH);
         }
 
+        // ✅ 세션에 사용자 ID 저장
         HttpSession session = httpRequest.getSession(true);
         session.setAttribute("userId", user.getId());
 
@@ -63,7 +80,7 @@ public class AuthService {
     }
 
     /**
-     * ✅ 회원 탈퇴
+     * ✅ 회원 탈퇴 (세션 기반)
      */
     public void withdraw(HttpServletRequest request) {
         Long userId = SessionUtil.getUserId(request);

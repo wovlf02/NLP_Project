@@ -1,2 +1,5 @@
 src/main/resources/application.yml
 gradle.properties
+build/
+.gradle/
+gradle/

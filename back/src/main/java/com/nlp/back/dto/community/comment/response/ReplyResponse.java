@@ -1,7 +1,7 @@
 package com.nlp.back.dto.community.comment.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.hamcam.back.entity.community.Reply;
+import com.nlp.back.entity.community.Reply;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

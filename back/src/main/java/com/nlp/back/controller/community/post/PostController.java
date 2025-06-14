@@ -3,6 +3,12 @@ package com.nlp.back.controller.community.post;
 import com.nlp.back.dto.common.MessageResponse;
 import com.nlp.back.dto.community.post.request.*;
 import com.nlp.back.dto.community.post.response.*;
+import com.nlp.back.dto.community.study.request.StudyApplicationApprovalRequest;
+import com.nlp.back.dto.community.study.request.StudyApplyRequest;
+import com.nlp.back.dto.community.study.request.SidebarStudyCreateRequest;
+import com.nlp.back.dto.community.study.response.StudyInfoDto;
+import com.nlp.back.dto.community.study.response.StudyInfoListResponse;
+import com.nlp.back.dto.community.study.response.UserListResponse;
 import com.nlp.back.service.community.post.PostService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -114,4 +120,64 @@ public class PostController {
         postService.increaseViewCount(request);
         return ResponseEntity.ok(MessageResponse.of("조회수가 증가되었습니다."));
     }
+
+    /** ✅ 사이드바 - 진행 중인 스터디 리스트 */
+    @GetMapping("/sidebar/studies")
+    public ResponseEntity<StudyInfoListResponse> getSidebarStudyList() {
+        return ResponseEntity.ok(postService.getOngoingStudies());
+    }
+
+    /** ✅ 사이드바 - 인기 태그 리스트 */
+    @GetMapping("/sidebar/tags")
+    public ResponseEntity<TagListResponse> getPopularTags() {
+        return ResponseEntity.ok(postService.getPopularTags());
+    }
+
+    /** ✅ 사이드바 - 진행 중인 스터디 생성 */
+    @PostMapping("/sidebar/studies/create")
+    public ResponseEntity<MessageResponse> createSidebarStudy(
+            @RequestBody SidebarStudyCreateRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        postService.createSidebarStudy(request, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("스터디가 생성되었습니다."));
+    }
+
+    /** ✅ 사이드바 - 스터디 상세 조회 */
+    @GetMapping("/sidebar/studies/{studyId}")
+    public ResponseEntity<StudyInfoDto> getSidebarStudyDetail(@PathVariable("studyId") Long studyId) {
+        return ResponseEntity.ok(postService.getSidebarStudyDetail(studyId));
+    }
+
+    /** ✅ 스터디 참여 신청 */
+    @PostMapping("/sidebar/studies/apply")
+    public ResponseEntity<MessageResponse> applyToStudy(
+            @RequestBody StudyApplyRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        postService.applyToStudy(request.getStudyId(), httpRequest);
+        return ResponseEntity.ok(MessageResponse.of("스터디 참여 신청이 완료되었습니다."));
+    }
+
+    
+    @GetMapping("/sidebar/studies/{studyId}/applications")
+    public ResponseEntity<UserListResponse> getStudyApplications(
+        @PathVariable("studyId") Long studyId,
+        HttpServletRequest httpRequest
+    ) {
+        System.out.println(studyId);
+        return ResponseEntity.ok(postService.getStudyApplications(studyId, httpRequest));
+    }
+
+    @PostMapping("/sidebar/studies/approve")
+    public ResponseEntity<MessageResponse> approveStudyApplication(
+            @RequestBody StudyApplicationApprovalRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        postService.approveStudyApplication(request, httpRequest);
+        return ResponseEntity.ok(MessageResponse.of(
+                request.isApprove() ? "신청이 수락되었습니다." : "신청이 거절되었습니다."
+        ));
+    }
+
 }

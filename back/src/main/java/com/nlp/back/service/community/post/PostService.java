@@ -4,6 +4,12 @@ import com.nlp.back.dto.community.attachment.request.AttachmentIdRequest;
 import com.nlp.back.dto.community.attachment.request.AttachmentUploadRequest;
 import com.nlp.back.dto.community.post.request.*;
 import com.nlp.back.dto.community.post.response.*;
+import com.nlp.back.dto.community.study.request.SidebarStudyCreateRequest;
+import com.nlp.back.dto.community.study.request.StudyApplicationApprovalRequest;
+import com.nlp.back.dto.community.study.response.StudyInfoDto;
+import com.nlp.back.dto.community.study.response.StudyInfoListResponse;
+import com.nlp.back.dto.community.study.response.UserListResponse;
+import com.nlp.back.dto.community.study.response.UserSimpleDto;
 import com.nlp.back.entity.auth.User;
 import com.nlp.back.entity.community.*;
 import com.nlp.back.global.exception.CustomException;
@@ -11,6 +17,9 @@ import com.nlp.back.global.exception.ErrorCode;
 import com.nlp.back.repository.auth.UserRepository;
 import com.nlp.back.repository.community.post.PostFavoriteRepository;
 import com.nlp.back.repository.community.post.PostRepository;
+import com.nlp.back.repository.community.study.SidebarStudyRepository;
+import com.nlp.back.repository.community.study.StudyApplicationRepository;
+import com.nlp.back.repository.community.study.StudyParticipantRepository;
 import com.nlp.back.service.community.attachment.AttachmentService;
 import com.nlp.back.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +41,9 @@ public class PostService {
     private final PostFavoriteRepository postFavoriteRepository;
     private final AttachmentService attachmentService;
     private final UserRepository userRepository;
+    private final SidebarStudyRepository sidebarStudyRepository;
+    private final StudyApplicationRepository studyApplicationRepository;
+    private final StudyParticipantRepository studyParticipantRepository;
 
     private Post getPostOrThrow(Long postId) {
         return postRepository.findById(postId)
@@ -275,4 +287,186 @@ public class PostService {
         post.incrementViewCount();
         postRepository.save(post);
     }
+
+    /** ✅ 사이드바 - 진행 중인 스터디 */
+    public StudyInfoListResponse getOngoingStudies() {
+        List<SidebarStudy> studyList = sidebarStudyRepository.findAll();
+
+        List<StudyInfoDto> studies = studyList.stream()
+                .map(study -> StudyInfoDto.builder()
+                        .studyId(study.getId())
+                        .name(study.getName())
+                        .info(study.getInfo())
+                        .schedule(study.getSchedule())
+                        .status(study.getStatus())
+                        .tag(study.getTag())
+                        .color(study.getColor())
+                        .tagColor(study.getTagColor())
+                        .members(study.getMembers())
+                        .build())
+                .toList();
+
+        return StudyInfoListResponse.builder()
+                .studies(studies)
+                .build();
+    }
+
+
+    /** ✅ 사이드바 - 인기 태그 */
+    public TagListResponse getPopularTags() {
+        List<String> tags = List.of("알고리즘", "자바", "React", "Vue", "CS", "백엔드", "스터디", "정보공유", "고등수학");
+        return TagListResponse.builder().tags(tags).build();
+    }
+
+    public void createSidebarStudy(SidebarStudyCreateRequest request, HttpServletRequest httpRequest) {
+        Long userId = SessionUtil.getUserId(httpRequest);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        SidebarStudy study = SidebarStudy.builder()
+                .name(request.getName())
+                .info(request.getInfo())
+                .schedule(request.getSchedule())
+                .status(request.getStatus())
+                .tag(request.getTag())
+                .color(request.getColor())
+                .tagColor(request.getTagColor())
+                .members(request.getMembers())
+                .creator(user)
+                .build();
+
+        sidebarStudyRepository.save(study);
+
+        // 스터디 저장 이후에 참여자로 등록
+        StudyParticipant participant = StudyParticipant.builder()
+                .study(study)
+                .user(user)
+                .build();
+
+        studyParticipantRepository.save(participant);
+
+    }
+
+    public StudyInfoDto getSidebarStudyDetail(Long studyId) {
+        SidebarStudy study = sidebarStudyRepository.findById(studyId)
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
+
+        List<StudyParticipant> participantEntities = studyParticipantRepository.findByStudy(study);
+
+        List<UserSimpleDto> participants = participantEntities.stream()
+                .map(p -> UserSimpleDto.builder()
+                        .userId(p.getUser().getId())
+                        .nickname(p.getUser().getNickname())
+                        .build())
+                .toList();
+
+        return StudyInfoDto.builder()
+                .studyId(study.getId())
+                .name(study.getName())
+                .info(study.getInfo())
+                .schedule(study.getSchedule())
+                .status(study.getStatus())
+                .tag(study.getTag())
+                .color(study.getColor())
+                .tagColor(study.getTagColor())
+                .members(study.getMembers())
+                .currentMembers(participants.size())
+                .participants(participants)
+                .creatorId(study.getCreator().getId()) // ✅ 생성자 ID 추가
+                .build();
+    }
+
+    public void applyToStudy(Long studyId, HttpServletRequest httpRequest) {
+        Long userId = SessionUtil.getUserId(httpRequest);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        SidebarStudy study = sidebarStudyRepository.findById(studyId)
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
+
+        // ❌ 중복 신청 방지
+        if (studyParticipantRepository.existsByStudyAndUser(study, user)) {
+            throw new CustomException(ErrorCode.ALREADY_PARTICIPATING);
+        }
+
+        if (studyApplicationRepository.existsByStudyAndUserAndStatus(study, user, StudyApplicationStatus.PENDING)) {
+            throw new CustomException(ErrorCode.ALREADY_APPLIED);
+        }
+
+        // ✅ 신청 정보 저장
+        StudyApplication application = StudyApplication.builder()
+                .study(study)
+                .user(user)
+                .status(StudyApplicationStatus.PENDING)
+                .build();
+
+        studyApplicationRepository.save(application);
+    }
+
+    public UserListResponse getStudyApplications(Long studyId, HttpServletRequest httpRequest) {
+        Long userId = SessionUtil.getUserId(httpRequest);
+        SidebarStudy study = sidebarStudyRepository.findById(studyId)
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
+
+        // ✅ 생성자만 신청자 목록 조회 가능
+        if (!study.getCreator().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
+
+        List<StudyApplication> applications = studyApplicationRepository
+                .findByStudyAndStatus(study, StudyApplicationStatus.PENDING);
+        System.out.println();
+        System.out.println(applications);
+
+        List<UserSimpleDto> data = applications.stream()
+                .map(app -> UserSimpleDto.builder()
+                        .userId(app.getUser().getId())
+                        .nickname(app.getUser().getNickname())
+                        .build())
+                .toList();
+
+        return UserListResponse.builder().data(data).build();
+    }
+
+    public void approveStudyApplication(StudyApplicationApprovalRequest request, HttpServletRequest httpRequest) {
+        Long userId = SessionUtil.getUserId(httpRequest);
+
+        SidebarStudy study = sidebarStudyRepository.findById(request.getStudyId())
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
+
+        if (!study.getCreator().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.ACCESS_DENIED);
+        }
+
+        User applicant = userRepository.findById(request.getApplicantId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        StudyApplication application = studyApplicationRepository
+                .findByStudyAndUser(study, applicant)
+                .orElseThrow(() -> new CustomException(ErrorCode.APPLICATION_NOT_FOUND));
+
+        if (request.isApprove()) {
+            // ✅ 정원 초과 검사
+            int currentMembers = studyParticipantRepository.findByStudy(study).size();
+            if (currentMembers >= study.getMembers()) {
+                throw new CustomException(ErrorCode.STUDY_FULL);
+            }
+
+            // ✅ 참여자로 등록
+            StudyParticipant participant = StudyParticipant.builder()
+                    .study(study)
+                    .user(applicant)
+                    .build();
+            studyParticipantRepository.save(participant);
+
+            application.setStatus(StudyApplicationStatus.APPROVED);
+        } else {
+            application.setStatus(StudyApplicationStatus.REJECTED);
+        }
+
+        studyApplicationRepository.save(application);
+    }
+
+
+
 }

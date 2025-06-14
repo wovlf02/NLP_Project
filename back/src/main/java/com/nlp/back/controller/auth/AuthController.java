@@ -9,13 +9,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * [AuthController]
  * 로그인/회원가입/탈퇴 처리 컨트롤러
- * - JSON 기반 요청 처리 (React 프론트와 연동)
+ * - 로그인 시 전체 사용자 정보 반환 (LocalStorage용)
+ * - 비밀번호는 평문 저장 (보안 제외: 프로토타입 목적)
  */
 @Slf4j
 @RestController
@@ -25,13 +28,14 @@ public class AuthController {
 
     private final AuthService authService;
 
-    /** ✅ 회원가입 요청 - JSON 기반 */
-    @PostMapping("/register")
+    /** ✅ 회원가입 요청 - Multipart (profileImage 포함 가능) */
+    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<String>> register(
-            @RequestBody @Valid RegisterRequest request,
+            @RequestPart("request") RegisterRequest request,
+            @RequestPart(value = "profileImage", required = false) MultipartFile file,
             HttpServletRequest httpRequest
     ) {
-        authService.register(request, httpRequest);
+        authService.register(request, file, httpRequest);
         return ResponseEntity.ok(ApiResponse.ok("✅ 회원가입이 완료되었습니다."));
     }
 

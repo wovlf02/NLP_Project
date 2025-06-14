@@ -5,6 +5,7 @@ import com.nlp.back.dto.community.attachment.request.AttachmentUploadRequest;
 import com.nlp.back.dto.community.attachment.request.PostIdRequest;
 import com.nlp.back.dto.community.attachment.response.AttachmentListResponse;
 import com.nlp.back.dto.community.attachment.response.AttachmentResponse;
+import com.nlp.back.entity.community.Attachment;
 import com.nlp.back.entity.community.Post;
 import com.nlp.back.global.exception.CustomException;
 import com.nlp.back.global.exception.ErrorCode;

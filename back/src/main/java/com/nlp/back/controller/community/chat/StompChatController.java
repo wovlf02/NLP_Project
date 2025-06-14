@@ -3,6 +3,7 @@ package com.nlp.back.controller.community.chat;
 import com.nlp.back.dto.community.chat.request.ChatMessageRequest;
 import com.nlp.back.dto.community.chat.request.ChatReadRequest;
 import com.nlp.back.dto.community.chat.response.ChatMessageResponse;
+import com.nlp.back.dto.study.team.socket.request.StudyChatMessageRequest;
 import com.nlp.back.entity.auth.User;
 import com.nlp.back.entity.chat.ChatMessageType;
 import com.nlp.back.global.exception.CustomException;
@@ -10,9 +11,12 @@ import com.nlp.back.global.exception.ErrorCode;
 import com.nlp.back.repository.auth.UserRepository;
 import com.nlp.back.service.community.chat.ChatReadService;
 import com.nlp.back.service.community.chat.WebSocketChatService;
+import com.nlp.back.service.study.team.chat.StudyChatService;
+import com.nlp.back.util.SessionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -27,6 +31,7 @@ public class StompChatController {
     private final WebSocketChatService webSocketChatService;
     private final ChatReadService chatReadService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final StudyChatService studyChatService;
     private final UserRepository userRepository;
 
     private static final String CHAT_DEST_PREFIX = "/sub/chat/room/";
@@ -74,6 +79,20 @@ public class StompChatController {
         messagingTemplate.convertAndSend(CHAT_DEST_PREFIX + roomId, ack);
         log.info("✅ [READ_ACK 전송] messageId={}, unreadCount={}", messageId, unreadCount);
     }
+
+    @MessageMapping("/focus/chat/{roomId}")
+    public void handleFocusChat(@DestinationVariable Long roomId,
+                                @Payload StudyChatMessageRequest message,
+                                SimpMessageHeaderAccessor accessor) {
+
+        Long userId = SessionUtil.getUserIdFromSession(accessor.getSessionAttributes());
+
+        log.info("📥 [FocusChat] userId={}, roomId={}, content={}", userId, roomId, message.getContent());
+
+        // ✅ 채팅 처리
+        studyChatService.handleAndBroadcastChatMessage("focus", roomId, userId, message.getContent());
+    }
+
 
     /**
      * ✅ WebSocket 세션에서 userId를 꺼내 User 조회
